@@ -1,0 +1,14 @@
+#!/bin/bash
+#PBS -l nodes=1:ppn=4
+#PBS -l walltime=4:00:00
+#PBS -l pmem=6gb
+
+module load r/3.4
+
+cd $PBS_O_WORKDIR
+
+chmod 755 Script2MStSDStoPdiff.R #PUT FILENAME HERE	
+
+R --file=/storage/home/ama6560/scratch/Phenotypes/MS/Script2MStSDStoPdiff.R
+
+./Script2MStSDStoPdiff.R

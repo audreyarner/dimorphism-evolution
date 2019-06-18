@@ -1,0 +1,15 @@
+#!/bin/bash
+#PBS -l nodes=1:ppn=4
+#PBS -l walltime=4:00:00
+#PBS -l pmem=6gb
+#PBS -M ama6560@psu.edu
+
+module load r/3.4
+
+cd $PBS_O_WORKDIR
+
+chmod 755 Script2LeftHandtSDStoPdiff.R #PUT FILENAME HERE	
+
+R --file=/storage/home/ama6560/scratch/Phenotypes/LeftHand/Script2LeftHandtSDStoPdiff.R
+
+./Script2LeftHandtSDStoPdiff.R

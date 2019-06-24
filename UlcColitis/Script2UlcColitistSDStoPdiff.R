@@ -72,7 +72,7 @@ CorrectEffect$tSDS = CorrectEffect$FIRSTtSDS
 Final.Phenotype.tSDS <- rbind(CorrectEffect, IncorrectEffect2)
 
 #a complete table with every SNP and corresponding tSDS score
-write.csv(Final.Phenotype.tSDS, "WomenType1DiabetesCountwithtSDS.csv", row.names = FALSE)
+write.csv(Final.Phenotype.tSDS, "WomenUlcColitiswithtSDS.csv", row.names = FALSE)
 
 #====================================================================
 #--The following creates a graph as in Field et al., 2016 Figure 4A
@@ -90,14 +90,14 @@ MeanP <- colMeans(matrix(OrderedbyP$pval, nrow=1000))
 FinalBinSDSWOOD <- cbind(MeantSDS, MeanP)
 
 #writes a .csv file for use in the genome-wide plot
-write.csv(FinalBinSDSWOOD, "WomenType1DiabetesCountSDSBins.csv", row.names = FALSE)
+write.csv(FinalBinSDSWOOD, "WomenUlcColitisSDSBins.csv", row.names = FALSE)
 
-ReplicatedFieldGraph <- read.csv("WomenType1DiabetesCountSDSBins.csv")
+ReplicatedFieldGraph <- read.csv("WomenUlcColitisSDSBins.csv")
 
 #makes a graph of the genome wide tSDS score of bins of 1000 SNPs, as seen in Field et al Figure 4A
 ReplicatedFieldGraph %>% ggplot(aes(x=MeanP, y=MeantSDS)) + geom_point() + ggtitle("Phenotype tSDS score observed genome-wide")+ labs(x="Phenotype signifcance (rank)", y = "Phenotype-increasing tSDS (bin average)") + scale_x_reverse() + ylim(-.3,.75)
 
-ggsave("WomenType1DiabetesCount.tSDSGraph.png")
+ggsave("WomenUlcColitis.tSDSGraph.png")
 
 #====================================================================
 #--The following repeats the process for males
@@ -147,7 +147,7 @@ CorrectEffect$tSDS = CorrectEffect$FIRSTtSDS
 Final.Phenotype.tSDS <- rbind(CorrectEffect, IncorrectEffect2)
 
 #a complete table with every SNP and corresponding tSDS score
-write.csv(Final.Phenotype.tSDS, "MenType1DiabetesCountwithtSDS.csv", row.names = FALSE)
+write.csv(Final.Phenotype.tSDS, "MenUlcColitiswithtSDS.csv", row.names = FALSE)
 
 #====================================================================
 #--The following creates a graph as in Field et al., 2016 Figure 4A
@@ -165,17 +165,17 @@ MeanP <- colMeans(matrix(OrderedbyP$pval, nrow=1000))
 FinalBinSDSWOOD <- cbind(MeantSDS, MeanP)
 
 #writes a .csv file for use in the genome-wide plot
-write.csv(FinalBinSDSWOOD, "MenType1DiabetesCountSDSBins.csv", row.names = FALSE)
+write.csv(FinalBinSDSWOOD, "MenUlcColitisSDSBins.csv", row.names = FALSE)
 
-ReplicatedFieldGraph <- read.csv("MenType1DiabetesCountSDSBins.csv")
+ReplicatedFieldGraph <- read.csv("MenUlcColitisSDSBins.csv")
 
 #makes a graph of the genome wide tSDS score of bins of 1000 SNPs, as seen in Field et al Figure 4A
 ReplicatedFieldGraph %>% ggplot(aes(x=MeanP, y=MeantSDS)) + geom_point() + ggtitle("Phenotype tSDS score observed genome-wide")+ labs(x="Phenotype signifcance (rank)", y = "Phenotype-increasing tSDS (bin average)") + scale_x_reverse() + ylim(-.3,.75)
 
-ggsave("MenType1DiabetesCount.tSDSGraph.png")
+ggsave("MenUlcColitis.tSDSGraph.png")
 
-WomenPheno <- read.csv("WomenType1DiabetesCountwithtSDS.csv", header = TRUE)
-MenPheno <- read.csv("MenType1DiabetesCountwithtSDS.csv", header = TRUE)
+WomenPheno <- read.csv("WomenUlcColitiswithtSDS.csv", header = TRUE)
+MenPheno <- read.csv("MenUlcColitiswithtSDS.csv", header = TRUE)
 
 #takes out the remaining SNPs that are low confidence variants or have a minor allele frequency of less than 0.05
 Phenotype1Clean <- MenPheno %>% filter(low_confidence_variant == "false")
@@ -188,18 +188,18 @@ Phenotype2Clean <- Phenotype2Clean %>% filter(minor_AF >= .05)
 nrow(Phenotype2Clean)
 
 #calculates the FDR for men
-Type1DiabetesCountPdiffvalues <- unname(unlist(Phenotype1Clean[,"pval"]))
-fdr <- p.adjust(Type1DiabetesCountPdiffvalues, method = "fdr")
+UlcColitisPdiffvalues <- unname(unlist(Phenotype1Clean[,"pval"]))
+fdr <- p.adjust(UlcColitisPdiffvalues, method = "fdr")
 Phenotype1Clean$MEN.pval.FDR <- fdr
 
 #calculates the FDR for women
-Type1DiabetesCountPdiffvalues <- unname(unlist(Phenotype2Clean[,"pval"]))
-fdr <- p.adjust(Type1DiabetesCountPdiffvalues, method = "fdr")
+UlcColitisPdiffvalues <- unname(unlist(Phenotype2Clean[,"pval"]))
+fdr <- p.adjust(UlcColitisPdiffvalues, method = "fdr")
 Phenotype2Clean$WOMEN.pval.FDR <- fdr
 
 #total table with tSDS, FDR, and Bonferroni
-write.table(Phenotype1Clean, "MenType1DiabetesCount.tSDS.FDR.tsv", row.names = FALSE)
-write.table(Phenotype2Clean, "WomenType1DiabetesCount.tSDS.FDR.tsv", row.names = FALSE)
+write.table(Phenotype1Clean, "MenUlcColitis.tSDS.FDR.tsv", row.names = FALSE)
+write.table(Phenotype2Clean, "WomenUlcColitis.tSDS.FDR.tsv", row.names = FALSE)
 
 MenSmall <- Phenotype1Clean
 WomenSmall <- Phenotype2Clean
@@ -212,51 +212,51 @@ WomenSmall <- WomenSmall %>% select(rsid, CHR, POS, pval, WOMEN.pval.FDR)
 MenSmall <- MenSmall %>% filter(-log10(pval) >1 )
 WomenSmall <- WomenSmall %>% filter(-log10(pval) >1 )
 
-write.table(MenSmall, "Type1DiabetesCountMenManhattan.tsv", row.names = FALSE)
-write.table(WomenSmall, "Type1DiabetesCountWomenManhattan.tsv", row.names = FALSE)
+write.table(MenSmall, "UlcColitisMenManhattan.tsv", row.names = FALSE)
+write.table(WomenSmall, "UlcColitisWomenManhattan.tsv", row.names = FALSE)
 
 #---------------------------------------------------------------------
 #this part of the script is used to get the Spearman correlation coefficient (rho)
 #---------------------------------------------------------------------
 
-Type1DiabetesCountMen <- read.table("MenType1DiabetesCount.tSDS.FDR.tsv", header = TRUE)
-Type1DiabetesCountWomen <- read.table ("WomenType1DiabetesCount.tSDS.FDR.tsv", header = TRUE)
+UlcColitisMen <- read.table("MenUlcColitis.tSDS.FDR.tsv", header = TRUE)
+UlcColitisWomen <- read.table ("WomenUlcColitis.tSDS.FDR.tsv", header = TRUE)
 
-Type1DiabetesCountMen2 <- Type1DiabetesCountMen %>% select(rsid, CHR, POS, AA, DA, variant, n_complete_samples, beta, se, tstat, pval, tSDS, MEN.pval.FDR)
-Type1DiabetesCountWomen2 <- Type1DiabetesCountWomen %>% select(rsid, CHR, POS, AA, DA, variant, n_complete_samples, beta, se, tstat, pval, tSDS, WOMEN.pval.FDR)
+UlcColitisMen2 <- UlcColitisMen %>% select(rsid, CHR, POS, AA, DA, variant, n_complete_samples, beta, se, tstat, pval, tSDS, MEN.pval.FDR)
+UlcColitisWomen2 <- UlcColitisWomen %>% select(rsid, CHR, POS, AA, DA, variant, n_complete_samples, beta, se, tstat, pval, tSDS, WOMEN.pval.FDR)
 
 #changes the name of the column from Beta to differentiate for later
-names(Type1DiabetesCountMen2)[8] <- "BETAM"
-names(Type1DiabetesCountWomen2)[8] <- "BETAW"
+names(UlcColitisMen2)[8] <- "BETAM"
+names(UlcColitisWomen2)[8] <- "BETAW"
 
 #makes a table with only the marker name and beta values
-BETAType1DiabetesCountMen <- Type1DiabetesCountMen2 %>% select(rsid, BETAM) #need to put in the MarkerName
-BETAType1DiabetesCountWomen <- Type1DiabetesCountWomen2 %>% select(rsid, BETAW) #need to put in the MarkerName
+BETAUlcColitisMen <- UlcColitisMen2 %>% select(rsid, BETAM) #need to put in the MarkerName
+BETAUlcColitisWomen <- UlcColitisWomen2 %>% select(rsid, BETAW) #need to put in the MarkerName
 
 #joins the tables so that there is a column of markernames with the beta values for
 ##men and women right next to each other
-BETAType1DiabetesCount <- merge(BETAType1DiabetesCountMen, BETAType1DiabetesCountWomen, by = "rsid") 
+BETAUlcColitis <- merge(BETAUlcColitisMen, BETAUlcColitisWomen, by = "rsid") 
 
 #Spearman rank correlation test
-Type1DiabetesCountCorr1 <- cor.test(~ BETAM + BETAW, data = BETAType1DiabetesCount, method = 'spearman', exact = FALSE)
-Type1DiabetesCountCorr1
+UlcColitisCorr1 <- cor.test(~ BETAM + BETAW, data = BETAUlcColitis, method = 'spearman', exact = FALSE)
+UlcColitisCorr1
 #grabs the rho value, needed later for the pdiff equation 
-Type1DiabetesCountCorr1$estimate
+UlcColitisCorr1$estimate
 
 #adds a column to both the men and women dataframes of the rho value
-Type1DiabetesCountMen2=mutate(Type1DiabetesCountMen2, rho=Type1DiabetesCountCorr1$estimate)
-Type1DiabetesCountWomen2=mutate(Type1DiabetesCountWomen2, rho=Type1DiabetesCountCorr1$estimate)
+UlcColitisMen2=mutate(UlcColitisMen2, rho=UlcColitisCorr1$estimate)
+UlcColitisWomen2=mutate(UlcColitisWomen2, rho=UlcColitisCorr1$estimate)
 
 #makes a table for these that can be uploaded
-write.table(Type1DiabetesCountMen2, "Type1DiabetesCountMenLessCol.tsv", row.names= FALSE, quote = FALSE)
-write.table(Type1DiabetesCountWomen2, "Type1DiabetesCountWomenLessCol.tsv", row.names= FALSE, quote = FALSE)
+write.table(UlcColitisMen2, "UlcColitisMenLessCol.tsv", row.names= FALSE, quote = FALSE)
+write.table(UlcColitisWomen2, "UlcColitisWomenLessCol.tsv", row.names= FALSE, quote = FALSE)
 
 #-----------------------------------------
 #this part of the script is used to get the pdiff value
 #-----------------------------------------
 
-Type1DiabetesCountMen2 <- read.table("Type1DiabetesCountMenLessCol.tsv", header = TRUE)
-Type1DiabetesCountWomen2 <- read.table("Type1DiabetesCountWomenLessCol.tsv", header = TRUE)
+UlcColitisMen2 <- read.table("UlcColitisMenLessCol.tsv", header = TRUE)
+UlcColitisWomen2 <- read.table("UlcColitisWomenLessCol.tsv", header = TRUE)
 
 tvalueF=function(bmen,bwomen,SEMen,SEWomen,rho){
   return ((bmen - bwomen) / (sqrt((SEMen)^2 + (SEWomen)^2 - (2*rho*SEMen*SEWomen))))
@@ -268,42 +268,42 @@ pvalueF=function(bmen,bwomen,SEMen,SEWomen,rho,DegreesFreedom){
   return(2*pt(-abs(tvalueF(bmen,bwomen,SEMen,SEWomen,rho)), (DegreesFreedom-1)))
 }
 
-names(Type1DiabetesCountMen2)[7] <- "MEN.N"
-names(Type1DiabetesCountMen2)[8] <- "MEN.beta"
-names(Type1DiabetesCountMen2)[9] <- "MEN.se"
-names(Type1DiabetesCountMen2)[10] <- "MEN.tstat"
-names(Type1DiabetesCountMen2)[11] <- "MEN.pval"
-names(Type1DiabetesCountMen2)[12] <- "MEN.tSDS"
+names(UlcColitisMen2)[7] <- "MEN.N"
+names(UlcColitisMen2)[8] <- "MEN.beta"
+names(UlcColitisMen2)[9] <- "MEN.se"
+names(UlcColitisMen2)[10] <- "MEN.tstat"
+names(UlcColitisMen2)[11] <- "MEN.pval"
+names(UlcColitisMen2)[12] <- "MEN.tSDS"
 
-names(Type1DiabetesCountWomen2)[7] <- "WOMEN.N"
-names(Type1DiabetesCountWomen2)[8] <- "WOMEN.beta"
-names(Type1DiabetesCountWomen2)[9] <- "WOMEN.se"
-names(Type1DiabetesCountWomen2)[10] <- "WOMEN.tstat"
-names(Type1DiabetesCountWomen2)[11] <- "WOMEN.pval"
-names(Type1DiabetesCountWomen2)[12] <- "WOMEN.tSDS"
+names(UlcColitisWomen2)[7] <- "WOMEN.N"
+names(UlcColitisWomen2)[8] <- "WOMEN.beta"
+names(UlcColitisWomen2)[9] <- "WOMEN.se"
+names(UlcColitisWomen2)[10] <- "WOMEN.tstat"
+names(UlcColitisWomen2)[11] <- "WOMEN.pval"
+names(UlcColitisWomen2)[12] <- "WOMEN.tSDS"
 
 #concatenates the men and women values into the same datatable
-UKBBType1DiabetesCount <- merge(Type1DiabetesCountMen2, Type1DiabetesCountWomen2)
+UKBBUlcColitis <- merge(UlcColitisMen2, UlcColitisWomen2)
 
 #cleaning data
-UKBBType1DiabetesCount$MEN.beta<-as.numeric(as.character(UKBBType1DiabetesCount$MEN.beta)) #beta
-UKBBType1DiabetesCount$WOMEN.beta<-as.numeric(as.character(UKBBType1DiabetesCount$WOMEN.beta)) #beta
-UKBBType1DiabetesCount$MEN.se <-as.numeric(as.character(UKBBType1DiabetesCount$MEN.se)) #standarderror
-UKBBType1DiabetesCount$WOMEN.se <-as.numeric(as.character(UKBBType1DiabetesCount$WOMEN.se)) #standarderror
-UKBBType1DiabetesCount$MEN.N<-as.numeric(as.character(UKBBType1DiabetesCount$MEN.N)) #number of individuals
-UKBBType1DiabetesCount$WOMEN.N<-as.numeric(as.character(UKBBType1DiabetesCount$WOMEN.N)) #number of individuals
-UKBBType1DiabetesCount$MEN.tSDS<-as.numeric(as.character(UKBBType1DiabetesCount$MEN.tSDS)) #tSDS value
-UKBBType1DiabetesCount$WOMEN.tSDS<-as.numeric(as.character(UKBBType1DiabetesCount$WOMEN.tSDS)) #tSDS value
-UKBBType1DiabetesCount$rho<-as.numeric(as.character(UKBBType1DiabetesCount$rho)) #rho value from previous script
+UKBBUlcColitis$MEN.beta<-as.numeric(as.character(UKBBUlcColitis$MEN.beta)) #beta
+UKBBUlcColitis$WOMEN.beta<-as.numeric(as.character(UKBBUlcColitis$WOMEN.beta)) #beta
+UKBBUlcColitis$MEN.se <-as.numeric(as.character(UKBBUlcColitis$MEN.se)) #standarderror
+UKBBUlcColitis$WOMEN.se <-as.numeric(as.character(UKBBUlcColitis$WOMEN.se)) #standarderror
+UKBBUlcColitis$MEN.N<-as.numeric(as.character(UKBBUlcColitis$MEN.N)) #number of individuals
+UKBBUlcColitis$WOMEN.N<-as.numeric(as.character(UKBBUlcColitis$WOMEN.N)) #number of individuals
+UKBBUlcColitis$MEN.tSDS<-as.numeric(as.character(UKBBUlcColitis$MEN.tSDS)) #tSDS value
+UKBBUlcColitis$WOMEN.tSDS<-as.numeric(as.character(UKBBUlcColitis$WOMEN.tSDS)) #tSDS value
+UKBBUlcColitis$rho<-as.numeric(as.character(UKBBUlcColitis$rho)) #rho value from previous script
 
 
 #mutate a new variable "pval" which holds the result of the function pvalueF
 #make sure that the arguments passed into pvalueF are in the right order
 #pvalueF(bmen,bwomen,SEMen,SEWomen,rho,DegreesFreedom) <-- these are the arguments in order
 #the argument for DegreesFreedom is (BMIadjRandallRaw$MEN.N+BMIadjRandallRaw$WOMEN.N)
-UKBBType1DiabetesCount=mutate(UKBBType1DiabetesCount,pdiff=pvalueF(UKBBType1DiabetesCount$MEN.beta,UKBBType1DiabetesCount$WOMEN.beta,UKBBType1DiabetesCount$MEN.se,UKBBType1DiabetesCount$WOMEN.se,UKBBType1DiabetesCount$rho,(UKBBType1DiabetesCount$MEN.N+UKBBType1DiabetesCount$WOMEN.N)))
+UKBBUlcColitis=mutate(UKBBUlcColitis,pdiff=pvalueF(UKBBUlcColitis$MEN.beta,UKBBUlcColitis$WOMEN.beta,UKBBUlcColitis$MEN.se,UKBBUlcColitis$WOMEN.se,UKBBUlcColitis$rho,(UKBBUlcColitis$MEN.N+UKBBUlcColitis$WOMEN.N)))
 
-write.table(UKBBType1DiabetesCount, "UKBBType1DiabetesCountwithPDIFF.tsv", row.names = FALSE, quote = FALSE)
+write.table(UKBBUlcColitis, "UKBBUlcColitiswithPDIFF.tsv", row.names = FALSE, quote = FALSE)
 
 #------------------------------------------------------
 #this part of the script is used to choose SNPs at various cutoffs
@@ -312,38 +312,38 @@ write.table(UKBBType1DiabetesCount, "UKBBType1DiabetesCountwithPDIFF.tsv", row.n
 library(dplyr) #needed for %>%
 
 #reads in the dataframe
-ConcatenatedSexType1DiabetesCount <- read.table("UKBBType1DiabetesCountwithPDIFF.tsv", header = TRUE)
+ConcatenatedSexUlcColitis <- read.table("UKBBUlcColitiswithPDIFF.tsv", header = TRUE)
 
 #assigns the genome-wide significance value, P=5x10-8, as our cutoff line
 cutoff <- 5e-8
 
 #applies the cutoff to the women values and makes a new dataframe
-WomenSig<- ConcatenatedSexType1DiabetesCount %>% filter(WOMEN.pval <= cutoff)
+WomenSig<- ConcatenatedSexUlcColitis %>% filter(WOMEN.pval <= cutoff)
 
 #applies the cutoff to the men values and makes a new dataframe
-MenSig<- ConcatenatedSexType1DiabetesCount %>% filter(MEN.pval <= cutoff)
+MenSig<- ConcatenatedSexUlcColitis %>% filter(MEN.pval <= cutoff)
 
 AllSig <- merge(MenSig, WomenSig, all=TRUE)
 
 #calculates the FDR for the pdiff values
-Type1DiabetesCountPdiffFDR <- unname(unlist(AllSig[,"pdiff"]))
-fdr <- p.adjust(Type1DiabetesCountPdiffFDR, method = "fdr")
+UlcColitisPdiffFDR <- unname(unlist(AllSig[,"pdiff"]))
+fdr <- p.adjust(UlcColitisPdiffFDR, method = "fdr")
 AllSig$pdiff.FDR <- fdr
 
-write.table(AllSig, "Type1DiabetesCountwithPDIFF.FDR.tsv", row.names = FALSE)
+write.table(AllSig, "UlcColitiswithPDIFF.FDR.tsv", row.names = FALSE)
 
 #applies different FDR cutoffs for pdiff and writes a table
 Ex1 <- AllSig %>% filter(pdiff.FDR <= .05)
-write.table(Ex1, "Type1DiabetesCountPdiff1.tsv", row.names = FALSE)
+write.table(Ex1, "UlcColitisPdiff1.tsv", row.names = FALSE)
 
 Ex2 <- AllSig %>% filter(pdiff.FDR <= .01)
-write.table(Ex2, "Type1DiabetesCountPdiff2.tsv", row.names = FALSE)
+write.table(Ex2, "UlcColitisPdiff2.tsv", row.names = FALSE)
 
 Ex3 <- AllSig %>% filter(pdiff.FDR <= .005)
-write.table(Ex3, "Type1DiabetesCountPdiff3.tsv", row.names = FALSE)
+write.table(Ex3, "UlcColitisPdiff3.tsv", row.names = FALSE)
 
 Ex4 <- AllSig %>% filter(pdiff.FDR <= .001)
-write.table(Ex4, "Type1DiabetesCountPdiff4.tsv", row.names = FALSE)
+write.table(Ex4, "UlcColitisPdiff4.tsv", row.names = FALSE)
 
 
 #------------------------------------------------------
@@ -356,7 +356,7 @@ SNPsTableMen <- rep(NA, 4)
 tSDSTableWomen <- rep(NA, 4)
 SNPsTableWomen <- rep(NA, 4)
 
-FDRtable <- read.table("Type1DiabetesCountPdiff4.tsv", header = TRUE)
+FDRtable <- read.table("UlcColitisPdiff4.tsv", header = TRUE)
 
 FDRtableWomen <- FDRtable %>% filter(WOMEN.pval <= MEN.pval)
 
@@ -369,7 +369,7 @@ tSDSTableMen[1] <- mean(FDRtableMen$MEN.tSDS)
 SNPsTableMen[1] <- nrow(FDRtableMen)
 
 ##########################
-FDRtable <- read.table("Type1DiabetesCountPdiff3.tsv", header = TRUE)
+FDRtable <- read.table("UlcColitisPdiff3.tsv", header = TRUE)
 
 FDRtableWomen <- FDRtable %>% filter(WOMEN.pval <= MEN.pval)
 
@@ -381,7 +381,7 @@ FDRtableMen <- FDRtable %>% filter(MEN.pval < WOMEN.pval)
 tSDSTableMen[2] <- mean(FDRtableMen$MEN.tSDS)
 SNPsTableMen[2] <- nrow(FDRtableMen)
 ##########################
-FDRtable <- read.table("Type1DiabetesCountPdiff2.tsv", header = TRUE)
+FDRtable <- read.table("UlcColitisPdiff2.tsv", header = TRUE)
 
 FDRtableWomen <- FDRtable %>% filter(WOMEN.pval <= MEN.pval)
 
@@ -395,7 +395,7 @@ SNPsTableMen[3] <- nrow(FDRtableMen)
 
 
 ##########################
-FDRtable <- read.table("Type1DiabetesCountPdiff1.tsv", header = TRUE)
+FDRtable <- read.table("UlcColitisPdiff1.tsv", header = TRUE)
 
 FDRtableWomen <- FDRtable %>% filter(WOMEN.pval <= MEN.pval)
 
@@ -407,9 +407,9 @@ FDRtableMen <- FDRtable %>% filter(MEN.pval < WOMEN.pval)
 tSDSTableMen[4] <- mean(FDRtableMen$MEN.tSDS)
 SNPsTableMen[4] <- nrow(FDRtableMen)
 
-write.table(tSDSTableMen, "Type1DiabetesCounttSDSTableMen.txt")
-write.table(SNPsTableMen, "Type1DiabetesCountSNPsTableMen.txt")
+write.table(tSDSTableMen, "UlcColitistSDSTableMen.txt")
+write.table(SNPsTableMen, "UlcColitisSNPsTableMen.txt")
 
-write.table(tSDSTableWomen, "Type1DiabetesCounttSDSTableWomen.txt")
-write.table(SNPsTableWomen, "Type1DiabetesCountSNPsTableWomen.txt")
+write.table(tSDSTableWomen, "UlcColitistSDSTableWomen.txt")
+write.table(SNPsTableWomen, "UlcColitisSNPsTableWomen.txt")
 

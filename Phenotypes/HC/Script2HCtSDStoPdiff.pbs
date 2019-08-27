@@ -9,6 +9,6 @@ cd $PBS_O_WORKDIR
 
 chmod 755 Script2HCtSDStoPdiff.R #PUT FILENAME HERE	
 
-R --file=/storage/home/ama6560/scratch/Phenotypes/HipCirc/Script2HCtSDStoPdiff.R
+R --file=/storage/home/ama6560/work/Phenotypes/HipCirc/Script2HCtSDStoPdiff.R
 
 ./Script2HCtSDStoPdiff.R

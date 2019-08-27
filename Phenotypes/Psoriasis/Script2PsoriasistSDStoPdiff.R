@@ -26,7 +26,7 @@ GiveAllele = function(information){
 #The UK10K data set has all the SDS values as computed in Field et al. from the Pritchard lab
 #this file can be retrieved from https://datadryad.org/resource/doi:10.5061/dryad.kd58f/1
 #tSDS file should have 4451436 rows
-UK10KDataSet <- read.table("/storage/home/ama6560/scratch/HeightDimorphism/SDS_UK10K_n3195_release_Sep_19_2016.txt", header = TRUE)
+UK10KDataSet <- read.table("/storage/home/ama6560/work/HeightDimorphism/SDS_UK10K_n3195_release_Sep_19_2016.txt", header = TRUE)
 #the phenotype data you are interested in. Should have ~13 million rows
 Phenotype <- read.table("1453_irnt.gwas.FemalewithRSID.tsv", header = TRUE)
 nrow(Phenotype)
@@ -72,7 +72,7 @@ CorrectEffect$tSDS = CorrectEffect$FIRSTtSDS
 Final.Phenotype.tSDS <- rbind(CorrectEffect, IncorrectEffect2)
 
 #a complete table with every SNP and corresponding tSDS score
-write.csv(Final.Phenotype.tSDS, "WomenPsoriasisCountwithtSDS.csv", row.names = FALSE)
+write.csv(Final.Phenotype.tSDS, "WomenPsoriasiswithtSDS.csv", row.names = FALSE)
 
 #====================================================================
 #--The following creates a graph as in Field et al., 2016 Figure 4A
@@ -90,14 +90,14 @@ MeanP <- colMeans(matrix(OrderedbyP$pval, nrow=1000))
 FinalBinSDSWOOD <- cbind(MeantSDS, MeanP)
 
 #writes a .csv file for use in the genome-wide plot
-write.csv(FinalBinSDSWOOD, "WomenPsoriasisCountSDSBins.csv", row.names = FALSE)
+write.csv(FinalBinSDSWOOD, "WomenPsoriasisSDSBins.csv", row.names = FALSE)
 
-ReplicatedFieldGraph <- read.csv("WomenPsoriasisCountSDSBins.csv")
+ReplicatedFieldGraph <- read.csv("WomenPsoriasisSDSBins.csv")
 
 #makes a graph of the genome wide tSDS score of bins of 1000 SNPs, as seen in Field et al Figure 4A
 ReplicatedFieldGraph %>% ggplot(aes(x=MeanP, y=MeantSDS)) + geom_point() + ggtitle("Phenotype tSDS score observed genome-wide")+ labs(x="Phenotype signifcance (rank)", y = "Phenotype-increasing tSDS (bin average)") + scale_x_reverse() + ylim(-.3,.75)
 
-ggsave("WomenPsoriasisCount.tSDSGraph.png")
+ggsave("WomenPsoriasis.tSDSGraph.png")
 
 #====================================================================
 #--The following repeats the process for males
@@ -147,7 +147,7 @@ CorrectEffect$tSDS = CorrectEffect$FIRSTtSDS
 Final.Phenotype.tSDS <- rbind(CorrectEffect, IncorrectEffect2)
 
 #a complete table with every SNP and corresponding tSDS score
-write.csv(Final.Phenotype.tSDS, "MenPsoriasisCountwithtSDS.csv", row.names = FALSE)
+write.csv(Final.Phenotype.tSDS, "MenPsoriasiswithtSDS.csv", row.names = FALSE)
 
 #====================================================================
 #--The following creates a graph as in Field et al., 2016 Figure 4A
@@ -165,17 +165,17 @@ MeanP <- colMeans(matrix(OrderedbyP$pval, nrow=1000))
 FinalBinSDSWOOD <- cbind(MeantSDS, MeanP)
 
 #writes a .csv file for use in the genome-wide plot
-write.csv(FinalBinSDSWOOD, "MenPsoriasisCountSDSBins.csv", row.names = FALSE)
+write.csv(FinalBinSDSWOOD, "MenPsoriasisSDSBins.csv", row.names = FALSE)
 
-ReplicatedFieldGraph <- read.csv("MenPsoriasisCountSDSBins.csv")
+ReplicatedFieldGraph <- read.csv("MenPsoriasisSDSBins.csv")
 
 #makes a graph of the genome wide tSDS score of bins of 1000 SNPs, as seen in Field et al Figure 4A
 ReplicatedFieldGraph %>% ggplot(aes(x=MeanP, y=MeantSDS)) + geom_point() + ggtitle("Phenotype tSDS score observed genome-wide")+ labs(x="Phenotype signifcance (rank)", y = "Phenotype-increasing tSDS (bin average)") + scale_x_reverse() + ylim(-.3,.75)
 
-ggsave("MenPsoriasisCount.tSDSGraph.png")
+ggsave("MenPsoriasis.tSDSGraph.png")
 
-WomenPheno <- read.csv("WomenPsoriasisCountwithtSDS.csv", header = TRUE)
-MenPheno <- read.csv("MenPsoriasisCountwithtSDS.csv", header = TRUE)
+WomenPheno <- read.csv("WomenPsoriasiswithtSDS.csv", header = TRUE)
+MenPheno <- read.csv("MenPsoriasiswithtSDS.csv", header = TRUE)
 
 #takes out the remaining SNPs that are low confidence variants or have a minor allele frequency of less than 0.05
 Phenotype1Clean <- MenPheno %>% filter(low_confidence_variant == "false")
@@ -188,18 +188,18 @@ Phenotype2Clean <- Phenotype2Clean %>% filter(minor_AF >= .05)
 nrow(Phenotype2Clean)
 
 #calculates the FDR for men
-PsoriasisCountPdiffvalues <- unname(unlist(Phenotype1Clean[,"pval"]))
-fdr <- p.adjust(PsoriasisCountPdiffvalues, method = "fdr")
+PsoriasisPdiffvalues <- unname(unlist(Phenotype1Clean[,"pval"]))
+fdr <- p.adjust(PsoriasisPdiffvalues, method = "fdr")
 Phenotype1Clean$MEN.pval.FDR <- fdr
 
 #calculates the FDR for women
-PsoriasisCountPdiffvalues <- unname(unlist(Phenotype2Clean[,"pval"]))
-fdr <- p.adjust(PsoriasisCountPdiffvalues, method = "fdr")
+PsoriasisPdiffvalues <- unname(unlist(Phenotype2Clean[,"pval"]))
+fdr <- p.adjust(PsoriasisPdiffvalues, method = "fdr")
 Phenotype2Clean$WOMEN.pval.FDR <- fdr
 
 #total table with tSDS, FDR, and Bonferroni
-write.table(Phenotype1Clean, "MenPsoriasisCount.tSDS.FDR.tsv", row.names = FALSE)
-write.table(Phenotype2Clean, "WomenPsoriasisCount.tSDS.FDR.tsv", row.names = FALSE)
+write.table(Phenotype1Clean, "MenPsoriasis.tSDS.FDR.tsv", row.names = FALSE)
+write.table(Phenotype2Clean, "WomenPsoriasis.tSDS.FDR.tsv", row.names = FALSE)
 
 MenSmall <- Phenotype1Clean
 WomenSmall <- Phenotype2Clean
@@ -212,51 +212,51 @@ WomenSmall <- WomenSmall %>% select(rsid, CHR, POS, pval, WOMEN.pval.FDR)
 MenSmall <- MenSmall %>% filter(-log10(pval) >1 )
 WomenSmall <- WomenSmall %>% filter(-log10(pval) >1 )
 
-write.table(MenSmall, "PsoriasisCountMenManhattan.tsv", row.names = FALSE)
-write.table(WomenSmall, "PsoriasisCountWomenManhattan.tsv", row.names = FALSE)
+write.table(MenSmall, "PsoriasisMenManhattan.tsv", row.names = FALSE)
+write.table(WomenSmall, "PsoriasisWomenManhattan.tsv", row.names = FALSE)
 
 #---------------------------------------------------------------------
 #this part of the script is used to get the Spearman correlation coefficient (rho)
 #---------------------------------------------------------------------
 
-PsoriasisCountMen <- read.table("MenPsoriasisCount.tSDS.FDR.tsv", header = TRUE)
-PsoriasisCountWomen <- read.table ("WomenPsoriasisCount.tSDS.FDR.tsv", header = TRUE)
+PsoriasisMen <- read.table("MenPsoriasis.tSDS.FDR.tsv", header = TRUE)
+PsoriasisWomen <- read.table ("WomenPsoriasis.tSDS.FDR.tsv", header = TRUE)
 
-PsoriasisCountMen2 <- PsoriasisCountMen %>% select(rsid, CHR, POS, AA, DA, variant, n_complete_samples, beta, se, tstat, pval, tSDS, MEN.pval.FDR)
-PsoriasisCountWomen2 <- PsoriasisCountWomen %>% select(rsid, CHR, POS, AA, DA, variant, n_complete_samples, beta, se, tstat, pval, tSDS, WOMEN.pval.FDR)
+PsoriasisMen2 <- PsoriasisMen %>% select(rsid, CHR, POS, AA, DA, variant, n_complete_samples, beta, se, tstat, pval, tSDS, MEN.pval.FDR)
+PsoriasisWomen2 <- PsoriasisWomen %>% select(rsid, CHR, POS, AA, DA, variant, n_complete_samples, beta, se, tstat, pval, tSDS, WOMEN.pval.FDR)
 
 #changes the name of the column from Beta to differentiate for later
-names(PsoriasisCountMen2)[8] <- "BETAM"
-names(PsoriasisCountWomen2)[8] <- "BETAW"
+names(PsoriasisMen2)[8] <- "BETAM"
+names(PsoriasisWomen2)[8] <- "BETAW"
 
 #makes a table with only the marker name and beta values
-BETAPsoriasisCountMen <- PsoriasisCountMen2 %>% select(rsid, BETAM) #need to put in the MarkerName
-BETAPsoriasisCountWomen <- PsoriasisCountWomen2 %>% select(rsid, BETAW) #need to put in the MarkerName
+BETAPsoriasisMen <- PsoriasisMen2 %>% select(rsid, BETAM) #need to put in the MarkerName
+BETAPsoriasisWomen <- PsoriasisWomen2 %>% select(rsid, BETAW) #need to put in the MarkerName
 
 #joins the tables so that there is a column of markernames with the beta values for
 ##men and women right next to each other
-BETAPsoriasisCount <- merge(BETAPsoriasisCountMen, BETAPsoriasisCountWomen, by = "rsid") 
+BETAPsoriasis <- merge(BETAPsoriasisMen, BETAPsoriasisWomen, by = "rsid") 
 
 #Spearman rank correlation test
-PsoriasisCountCorr1 <- cor.test(~ BETAM + BETAW, data = BETAPsoriasisCount, method = 'spearman', exact = FALSE)
-PsoriasisCountCorr1
+PsoriasisCorr1 <- cor.test(~ BETAM + BETAW, data = BETAPsoriasis, method = 'spearman', exact = FALSE)
+PsoriasisCorr1
 #grabs the rho value, needed later for the pdiff equation 
-PsoriasisCountCorr1$estimate
+PsoriasisCorr1$estimate
 
 #adds a column to both the men and women dataframes of the rho value
-PsoriasisCountMen2=mutate(PsoriasisCountMen2, rho=PsoriasisCountCorr1$estimate)
-PsoriasisCountWomen2=mutate(PsoriasisCountWomen2, rho=PsoriasisCountCorr1$estimate)
+PsoriasisMen2=mutate(PsoriasisMen2, rho=PsoriasisCorr1$estimate)
+PsoriasisWomen2=mutate(PsoriasisWomen2, rho=PsoriasisCorr1$estimate)
 
 #makes a table for these that can be uploaded
-write.table(PsoriasisCountMen2, "PsoriasisCountMenLessCol.tsv", row.names= FALSE, quote = FALSE)
-write.table(PsoriasisCountWomen2, "PsoriasisCountWomenLessCol.tsv", row.names= FALSE, quote = FALSE)
+write.table(PsoriasisMen2, "PsoriasisMenLessCol.tsv", row.names= FALSE, quote = FALSE)
+write.table(PsoriasisWomen2, "PsoriasisWomenLessCol.tsv", row.names= FALSE, quote = FALSE)
 
 #-----------------------------------------
 #this part of the script is used to get the pdiff value
 #-----------------------------------------
 
-PsoriasisCountMen2 <- read.table("PsoriasisCountMenLessCol.tsv", header = TRUE)
-PsoriasisCountWomen2 <- read.table("PsoriasisCountWomenLessCol.tsv", header = TRUE)
+PsoriasisMen2 <- read.table("PsoriasisMenLessCol.tsv", header = TRUE)
+PsoriasisWomen2 <- read.table("PsoriasisWomenLessCol.tsv", header = TRUE)
 
 tvalueF=function(bmen,bwomen,SEMen,SEWomen,rho){
   return ((bmen - bwomen) / (sqrt((SEMen)^2 + (SEWomen)^2 - (2*rho*SEMen*SEWomen))))
@@ -268,42 +268,42 @@ pvalueF=function(bmen,bwomen,SEMen,SEWomen,rho,DegreesFreedom){
   return(2*pt(-abs(tvalueF(bmen,bwomen,SEMen,SEWomen,rho)), (DegreesFreedom-1)))
 }
 
-names(PsoriasisCountMen2)[7] <- "MEN.N"
-names(PsoriasisCountMen2)[8] <- "MEN.beta"
-names(PsoriasisCountMen2)[9] <- "MEN.se"
-names(PsoriasisCountMen2)[10] <- "MEN.tstat"
-names(PsoriasisCountMen2)[11] <- "MEN.pval"
-names(PsoriasisCountMen2)[12] <- "MEN.tSDS"
+names(PsoriasisMen2)[7] <- "MEN.N"
+names(PsoriasisMen2)[8] <- "MEN.beta"
+names(PsoriasisMen2)[9] <- "MEN.se"
+names(PsoriasisMen2)[10] <- "MEN.tstat"
+names(PsoriasisMen2)[11] <- "MEN.pval"
+names(PsoriasisMen2)[12] <- "MEN.tSDS"
 
-names(PsoriasisCountWomen2)[7] <- "WOMEN.N"
-names(PsoriasisCountWomen2)[8] <- "WOMEN.beta"
-names(PsoriasisCountWomen2)[9] <- "WOMEN.se"
-names(PsoriasisCountWomen2)[10] <- "WOMEN.tstat"
-names(PsoriasisCountWomen2)[11] <- "WOMEN.pval"
-names(PsoriasisCountWomen2)[12] <- "WOMEN.tSDS"
+names(PsoriasisWomen2)[7] <- "WOMEN.N"
+names(PsoriasisWomen2)[8] <- "WOMEN.beta"
+names(PsoriasisWomen2)[9] <- "WOMEN.se"
+names(PsoriasisWomen2)[10] <- "WOMEN.tstat"
+names(PsoriasisWomen2)[11] <- "WOMEN.pval"
+names(PsoriasisWomen2)[12] <- "WOMEN.tSDS"
 
 #concatenates the men and women values into the same datatable
-UKBBPsoriasisCount <- merge(PsoriasisCountMen2, PsoriasisCountWomen2)
+UKBBPsoriasis <- merge(PsoriasisMen2, PsoriasisWomen2)
 
 #cleaning data
-UKBBPsoriasisCount$MEN.beta<-as.numeric(as.character(UKBBPsoriasisCount$MEN.beta)) #beta
-UKBBPsoriasisCount$WOMEN.beta<-as.numeric(as.character(UKBBPsoriasisCount$WOMEN.beta)) #beta
-UKBBPsoriasisCount$MEN.se <-as.numeric(as.character(UKBBPsoriasisCount$MEN.se)) #standarderror
-UKBBPsoriasisCount$WOMEN.se <-as.numeric(as.character(UKBBPsoriasisCount$WOMEN.se)) #standarderror
-UKBBPsoriasisCount$MEN.N<-as.numeric(as.character(UKBBPsoriasisCount$MEN.N)) #number of individuals
-UKBBPsoriasisCount$WOMEN.N<-as.numeric(as.character(UKBBPsoriasisCount$WOMEN.N)) #number of individuals
-UKBBPsoriasisCount$MEN.tSDS<-as.numeric(as.character(UKBBPsoriasisCount$MEN.tSDS)) #tSDS value
-UKBBPsoriasisCount$WOMEN.tSDS<-as.numeric(as.character(UKBBPsoriasisCount$WOMEN.tSDS)) #tSDS value
-UKBBPsoriasisCount$rho<-as.numeric(as.character(UKBBPsoriasisCount$rho)) #rho value from previous script
+UKBBPsoriasis$MEN.beta<-as.numeric(as.character(UKBBPsoriasis$MEN.beta)) #beta
+UKBBPsoriasis$WOMEN.beta<-as.numeric(as.character(UKBBPsoriasis$WOMEN.beta)) #beta
+UKBBPsoriasis$MEN.se <-as.numeric(as.character(UKBBPsoriasis$MEN.se)) #standarderror
+UKBBPsoriasis$WOMEN.se <-as.numeric(as.character(UKBBPsoriasis$WOMEN.se)) #standarderror
+UKBBPsoriasis$MEN.N<-as.numeric(as.character(UKBBPsoriasis$MEN.N)) #number of individuals
+UKBBPsoriasis$WOMEN.N<-as.numeric(as.character(UKBBPsoriasis$WOMEN.N)) #number of individuals
+UKBBPsoriasis$MEN.tSDS<-as.numeric(as.character(UKBBPsoriasis$MEN.tSDS)) #tSDS value
+UKBBPsoriasis$WOMEN.tSDS<-as.numeric(as.character(UKBBPsoriasis$WOMEN.tSDS)) #tSDS value
+UKBBPsoriasis$rho<-as.numeric(as.character(UKBBPsoriasis$rho)) #rho value from previous script
 
 
 #mutate a new variable "pval" which holds the result of the function pvalueF
 #make sure that the arguments passed into pvalueF are in the right order
 #pvalueF(bmen,bwomen,SEMen,SEWomen,rho,DegreesFreedom) <-- these are the arguments in order
 #the argument for DegreesFreedom is (BMIadjRandallRaw$MEN.N+BMIadjRandallRaw$WOMEN.N)
-UKBBPsoriasisCount=mutate(UKBBPsoriasisCount,pdiff=pvalueF(UKBBPsoriasisCount$MEN.beta,UKBBPsoriasisCount$WOMEN.beta,UKBBPsoriasisCount$MEN.se,UKBBPsoriasisCount$WOMEN.se,UKBBPsoriasisCount$rho,(UKBBPsoriasisCount$MEN.N+UKBBPsoriasisCount$WOMEN.N)))
+UKBBPsoriasis=mutate(UKBBPsoriasis,pdiff=pvalueF(UKBBPsoriasis$MEN.beta,UKBBPsoriasis$WOMEN.beta,UKBBPsoriasis$MEN.se,UKBBPsoriasis$WOMEN.se,UKBBPsoriasis$rho,(UKBBPsoriasis$MEN.N+UKBBPsoriasis$WOMEN.N)))
 
-write.table(UKBBPsoriasisCount, "UKBBPsoriasisCountwithPDIFF.tsv", row.names = FALSE, quote = FALSE)
+write.table(UKBBPsoriasis, "UKBBPsoriasiswithPDIFF.tsv", row.names = FALSE, quote = FALSE)
 
 #------------------------------------------------------
 #this part of the script is used to choose SNPs at various cutoffs
@@ -312,38 +312,38 @@ write.table(UKBBPsoriasisCount, "UKBBPsoriasisCountwithPDIFF.tsv", row.names = F
 library(dplyr) #needed for %>%
 
 #reads in the dataframe
-ConcatenatedSexPsoriasisCount <- read.table("UKBBPsoriasisCountwithPDIFF.tsv", header = TRUE)
+ConcatenatedSexPsoriasis <- read.table("UKBBPsoriasiswithPDIFF.tsv", header = TRUE)
 
 #assigns the genome-wide significance value, P=5x10-8, as our cutoff line
 cutoff <- 5e-8
 
 #applies the cutoff to the women values and makes a new dataframe
-WomenSig<- ConcatenatedSexPsoriasisCount %>% filter(WOMEN.pval <= cutoff)
+WomenSig<- ConcatenatedSexPsoriasis %>% filter(WOMEN.pval <= cutoff)
 
 #applies the cutoff to the men values and makes a new dataframe
-MenSig<- ConcatenatedSexPsoriasisCount %>% filter(MEN.pval <= cutoff)
+MenSig<- ConcatenatedSexPsoriasis %>% filter(MEN.pval <= cutoff)
 
 AllSig <- merge(MenSig, WomenSig, all=TRUE)
 
 #calculates the FDR for the pdiff values
-PsoriasisCountPdiffFDR <- unname(unlist(AllSig[,"pdiff"]))
-fdr <- p.adjust(PsoriasisCountPdiffFDR, method = "fdr")
+PsoriasisPdiffFDR <- unname(unlist(AllSig[,"pdiff"]))
+fdr <- p.adjust(PsoriasisPdiffFDR, method = "fdr")
 AllSig$pdiff.FDR <- fdr
 
-write.table(AllSig, "PsoriasisCountwithPDIFF.FDR.tsv", row.names = FALSE)
+write.table(AllSig, "PsoriasiswithPDIFF.FDR.tsv", row.names = FALSE)
 
 #applies different FDR cutoffs for pdiff and writes a table
 Ex1 <- AllSig %>% filter(pdiff.FDR <= .05)
-write.table(Ex1, "PsoriasisCountPdiff1.tsv", row.names = FALSE)
+write.table(Ex1, "PsoriasisPdiff1.tsv", row.names = FALSE)
 
 Ex2 <- AllSig %>% filter(pdiff.FDR <= .01)
-write.table(Ex2, "PsoriasisCountPdiff2.tsv", row.names = FALSE)
+write.table(Ex2, "PsoriasisPdiff2.tsv", row.names = FALSE)
 
 Ex3 <- AllSig %>% filter(pdiff.FDR <= .005)
-write.table(Ex3, "PsoriasisCountPdiff3.tsv", row.names = FALSE)
+write.table(Ex3, "PsoriasisPdiff3.tsv", row.names = FALSE)
 
 Ex4 <- AllSig %>% filter(pdiff.FDR <= .001)
-write.table(Ex4, "PsoriasisCountPdiff4.tsv", row.names = FALSE)
+write.table(Ex4, "PsoriasisPdiff4.tsv", row.names = FALSE)
 
 
 #------------------------------------------------------
@@ -356,7 +356,7 @@ SNPsTableMen <- rep(NA, 4)
 tSDSTableWomen <- rep(NA, 4)
 SNPsTableWomen <- rep(NA, 4)
 
-FDRtable <- read.table("PsoriasisCountPdiff4.tsv", header = TRUE)
+FDRtable <- read.table("PsoriasisPdiff4.tsv", header = TRUE)
 
 FDRtableWomen <- FDRtable %>% filter(WOMEN.pval <= MEN.pval)
 
@@ -369,7 +369,7 @@ tSDSTableMen[1] <- mean(FDRtableMen$MEN.tSDS)
 SNPsTableMen[1] <- nrow(FDRtableMen)
 
 ##########################
-FDRtable <- read.table("PsoriasisCountPdiff3.tsv", header = TRUE)
+FDRtable <- read.table("PsoriasisPdiff3.tsv", header = TRUE)
 
 FDRtableWomen <- FDRtable %>% filter(WOMEN.pval <= MEN.pval)
 
@@ -381,7 +381,7 @@ FDRtableMen <- FDRtable %>% filter(MEN.pval < WOMEN.pval)
 tSDSTableMen[2] <- mean(FDRtableMen$MEN.tSDS)
 SNPsTableMen[2] <- nrow(FDRtableMen)
 ##########################
-FDRtable <- read.table("PsoriasisCountPdiff2.tsv", header = TRUE)
+FDRtable <- read.table("PsoriasisPdiff2.tsv", header = TRUE)
 
 FDRtableWomen <- FDRtable %>% filter(WOMEN.pval <= MEN.pval)
 
@@ -395,7 +395,7 @@ SNPsTableMen[3] <- nrow(FDRtableMen)
 
 
 ##########################
-FDRtable <- read.table("PsoriasisCountPdiff1.tsv", header = TRUE)
+FDRtable <- read.table("PsoriasisPdiff1.tsv", header = TRUE)
 
 FDRtableWomen <- FDRtable %>% filter(WOMEN.pval <= MEN.pval)
 
@@ -407,9 +407,9 @@ FDRtableMen <- FDRtable %>% filter(MEN.pval < WOMEN.pval)
 tSDSTableMen[4] <- mean(FDRtableMen$MEN.tSDS)
 SNPsTableMen[4] <- nrow(FDRtableMen)
 
-write.table(tSDSTableMen, "PsoriasisCounttSDSTableMen.txt")
-write.table(SNPsTableMen, "PsoriasisCountSNPsTableMen.txt")
+write.table(tSDSTableMen, "PsoriasistSDSTableMen.txt")
+write.table(SNPsTableMen, "PsoriasisSNPsTableMen.txt")
 
-write.table(tSDSTableWomen, "PsoriasisCounttSDSTableWomen.txt")
-write.table(SNPsTableWomen, "PsoriasisCountSNPsTableWomen.txt")
+write.table(tSDSTableWomen, "PsoriasistSDSTableWomen.txt")
+write.table(SNPsTableWomen, "PsoriasisSNPsTableWomen.txt")
 

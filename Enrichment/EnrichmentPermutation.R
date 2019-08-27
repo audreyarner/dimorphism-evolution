@@ -90,7 +90,7 @@ genEnrichment = function(phenotype){
 
     df <- as.data.frame(GeneTable)
 
-    CalcPercent <- df %>% filter(GeneTable>signumber)
+    CalcPercent <- df %>% filter(GeneTable>=signumber)
     PercentTable[1] <-(nrow(CalcPercent)/10000)
   }
   ###############################
@@ -127,7 +127,7 @@ genEnrichment = function(phenotype){
 
     df <- as.data.frame(GeneTable)
 
-    CalcPercent <- df %>% filter(GeneTable>signumber)
+    CalcPercent <- df %>% filter(GeneTable>=signumber)
     PercentTable[2] <-(nrow(CalcPercent)/10000)
   }
     ###############################
@@ -164,7 +164,7 @@ genEnrichment = function(phenotype){
 
     df <- as.data.frame(GeneTable)
 
-    CalcPercent <- df %>% filter(GeneTable>signumber)
+    CalcPercent <- df %>% filter(GeneTable>=signumber)
     PercentTable[3] <-(nrow(CalcPercent)/10000)
   }
     ###############################
@@ -200,7 +200,7 @@ genEnrichment = function(phenotype){
 
     df <- as.data.frame(GeneTable)
 
-    CalcPercent <- df %>% filter(GeneTable>signumber)
+    CalcPercent <- df %>% filter(GeneTable>=signumber)
     PercentTable[4] <-(nrow(CalcPercent)/10000)
   }
 

@@ -9,6 +9,6 @@ cd $PBS_O_WORKDIR
 
 chmod 755 Script2ForcedExpiratorytSDStoPdiff.R #PUT FILENAME HERE	
 
-R --file=/storage/home/ama6560/scratch/Phenotypes/ForcedExpiratory/Script2ForcedExpiratorytSDStoPdiff.R
+R --file=/storage/home/ama6560/work/Phenotypes/ForcedExpiratory/Script2ForcedExpiratorytSDStoPdiff.R
 
 ./Script2ForcedExpiratorytSDStoPdiff.R

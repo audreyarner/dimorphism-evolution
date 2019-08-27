@@ -9,6 +9,6 @@ cd $PBS_O_WORKDIR
 
 chmod 755 Script2BladderCancertSDStoPdiff.R #PUT FILENAME HERE	
 
-R --file=/storage/home/ama6560/scratch/Phenotypes/BladderCancer/Script2BladderCancertSDStoPdiff.R
+R --file=/storage/home/ama6560/work/Phenotypes/BladderCancer/Script2BladderCancertSDStoPdiff.R
 
 ./Script2BladderCancertSDStoPdiff.R

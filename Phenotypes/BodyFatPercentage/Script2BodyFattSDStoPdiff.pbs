@@ -9,6 +9,6 @@ cd $PBS_O_WORKDIR
 
 chmod 755 Script2BodyFattSDStoPdiff.R #PUT FILENAME HERE	
 
-R --file=/storage/home/ama6560/scratch/Phenotypes/BodyFatPercent/Script2BodyFattSDStoPdiff.R
+R --file=/storage/home/ama6560/work/Phenotypes/BodyFatPercent/Script2BodyFattSDStoPdiff.R
 
 ./Script2BodyFattSDStoPdiff.R

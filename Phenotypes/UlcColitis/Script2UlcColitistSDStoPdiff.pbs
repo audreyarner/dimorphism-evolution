@@ -9,6 +9,6 @@ cd $PBS_O_WORKDIR
 
 chmod 755 Script2UlcColitistSDStoPdiff.R #PUT FILENAME HERE	
 
-R --file=/storage/home/ama6560/scratch/Phenotypes/UlcColitis/Script2UlcColitistSDStoPdiff.R
+R --file=/storage/home/ama6560/work/Phenotypes/UlcColitis/Script2UlcColitistSDStoPdiff.R
 
 ./Script2UlcColitistSDStoPdiff.R

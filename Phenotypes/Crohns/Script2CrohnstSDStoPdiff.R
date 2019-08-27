@@ -26,7 +26,7 @@ GiveAllele = function(information){
 #The UK10K data set has all the SDS values as computed in Field et al. from the Pritchard lab
 #this file can be retrieved from https://datadryad.org/resource/doi:10.5061/dryad.kd58f/1
 #tSDS file should have 4451436 rows
-UK10KDataSet <- read.table("/storage/home/ama6560/scratch/HeightDimorphism/SDS_UK10K_n3195_release_Sep_19_2016.txt", header = TRUE)
+UK10KDataSet <- read.table("/storage/home/ama6560/work/HeightDimorphism/SDS_UK10K_n3195_release_Sep_19_2016.txt", header = TRUE)
 #the phenotype data you are interested in. Should have ~13 million rows
 Phenotype <- read.table("1462_irnt.gwas.FemalewithRSID.tsv", header = TRUE)
 nrow(Phenotype)
@@ -72,7 +72,7 @@ CorrectEffect$tSDS = CorrectEffect$FIRSTtSDS
 Final.Phenotype.tSDS <- rbind(CorrectEffect, IncorrectEffect2)
 
 #a complete table with every SNP and corresponding tSDS score
-write.csv(Final.Phenotype.tSDS, "WomenCrohnsCountwithtSDS.csv", row.names = FALSE)
+write.csv(Final.Phenotype.tSDS, "WomenCrohnswithtSDS.csv", row.names = FALSE)
 
 #====================================================================
 #--The following creates a graph as in Field et al., 2016 Figure 4A
@@ -90,14 +90,14 @@ MeanP <- colMeans(matrix(OrderedbyP$pval, nrow=1000))
 FinalBinSDSWOOD <- cbind(MeantSDS, MeanP)
 
 #writes a .csv file for use in the genome-wide plot
-write.csv(FinalBinSDSWOOD, "WomenCrohnsCountSDSBins.csv", row.names = FALSE)
+write.csv(FinalBinSDSWOOD, "WomenCrohnsSDSBins.csv", row.names = FALSE)
 
-ReplicatedFieldGraph <- read.csv("WomenCrohnsCountSDSBins.csv")
+ReplicatedFieldGraph <- read.csv("WomenCrohnsSDSBins.csv")
 
 #makes a graph of the genome wide tSDS score of bins of 1000 SNPs, as seen in Field et al Figure 4A
 ReplicatedFieldGraph %>% ggplot(aes(x=MeanP, y=MeantSDS)) + geom_point() + ggtitle("Phenotype tSDS score observed genome-wide")+ labs(x="Phenotype signifcance (rank)", y = "Phenotype-increasing tSDS (bin average)") + scale_x_reverse() + ylim(-.3,.75)
 
-ggsave("WomenCrohnsCount.tSDSGraph.png")
+ggsave("WomenCrohns.tSDSGraph.png")
 
 #====================================================================
 #--The following repeats the process for males
@@ -147,7 +147,7 @@ CorrectEffect$tSDS = CorrectEffect$FIRSTtSDS
 Final.Phenotype.tSDS <- rbind(CorrectEffect, IncorrectEffect2)
 
 #a complete table with every SNP and corresponding tSDS score
-write.csv(Final.Phenotype.tSDS, "MenCrohnsCountwithtSDS.csv", row.names = FALSE)
+write.csv(Final.Phenotype.tSDS, "MenCrohnswithtSDS.csv", row.names = FALSE)
 
 #====================================================================
 #--The following creates a graph as in Field et al., 2016 Figure 4A
@@ -165,17 +165,17 @@ MeanP <- colMeans(matrix(OrderedbyP$pval, nrow=1000))
 FinalBinSDSWOOD <- cbind(MeantSDS, MeanP)
 
 #writes a .csv file for use in the genome-wide plot
-write.csv(FinalBinSDSWOOD, "MenCrohnsCountSDSBins.csv", row.names = FALSE)
+write.csv(FinalBinSDSWOOD, "MenCrohnsSDSBins.csv", row.names = FALSE)
 
-ReplicatedFieldGraph <- read.csv("MenCrohnsCountSDSBins.csv")
+ReplicatedFieldGraph <- read.csv("MenCrohnsSDSBins.csv")
 
 #makes a graph of the genome wide tSDS score of bins of 1000 SNPs, as seen in Field et al Figure 4A
 ReplicatedFieldGraph %>% ggplot(aes(x=MeanP, y=MeantSDS)) + geom_point() + ggtitle("Phenotype tSDS score observed genome-wide")+ labs(x="Phenotype signifcance (rank)", y = "Phenotype-increasing tSDS (bin average)") + scale_x_reverse() + ylim(-.3,.75)
 
-ggsave("MenCrohnsCount.tSDSGraph.png")
+ggsave("MenCrohns.tSDSGraph.png")
 
-WomenPheno <- read.csv("WomenCrohnsCountwithtSDS.csv", header = TRUE)
-MenPheno <- read.csv("MenCrohnsCountwithtSDS.csv", header = TRUE)
+WomenPheno <- read.csv("WomenCrohnswithtSDS.csv", header = TRUE)
+MenPheno <- read.csv("MenCrohnswithtSDS.csv", header = TRUE)
 
 #takes out the remaining SNPs that are low confidence variants or have a minor allele frequency of less than 0.05
 Phenotype1Clean <- MenPheno %>% filter(low_confidence_variant == "false")
@@ -188,18 +188,18 @@ Phenotype2Clean <- Phenotype2Clean %>% filter(minor_AF >= .05)
 nrow(Phenotype2Clean)
 
 #calculates the FDR for men
-CrohnsCountPdiffvalues <- unname(unlist(Phenotype1Clean[,"pval"]))
-fdr <- p.adjust(CrohnsCountPdiffvalues, method = "fdr")
+CrohnsPdiffvalues <- unname(unlist(Phenotype1Clean[,"pval"]))
+fdr <- p.adjust(CrohnsPdiffvalues, method = "fdr")
 Phenotype1Clean$MEN.pval.FDR <- fdr
 
 #calculates the FDR for women
-CrohnsCountPdiffvalues <- unname(unlist(Phenotype2Clean[,"pval"]))
-fdr <- p.adjust(CrohnsCountPdiffvalues, method = "fdr")
+CrohnsPdiffvalues <- unname(unlist(Phenotype2Clean[,"pval"]))
+fdr <- p.adjust(CrohnsPdiffvalues, method = "fdr")
 Phenotype2Clean$WOMEN.pval.FDR <- fdr
 
 #total table with tSDS, FDR, and Bonferroni
-write.table(Phenotype1Clean, "MenCrohnsCount.tSDS.FDR.tsv", row.names = FALSE)
-write.table(Phenotype2Clean, "WomenCrohnsCount.tSDS.FDR.tsv", row.names = FALSE)
+write.table(Phenotype1Clean, "MenCrohns.tSDS.FDR.tsv", row.names = FALSE)
+write.table(Phenotype2Clean, "WomenCrohns.tSDS.FDR.tsv", row.names = FALSE)
 
 MenSmall <- Phenotype1Clean
 WomenSmall <- Phenotype2Clean
@@ -212,51 +212,51 @@ WomenSmall <- WomenSmall %>% select(rsid, CHR, POS, pval, WOMEN.pval.FDR)
 MenSmall <- MenSmall %>% filter(-log10(pval) >1 )
 WomenSmall <- WomenSmall %>% filter(-log10(pval) >1 )
 
-write.table(MenSmall, "CrohnsCountMenManhattan.tsv", row.names = FALSE)
-write.table(WomenSmall, "CrohnsCountWomenManhattan.tsv", row.names = FALSE)
+write.table(MenSmall, "CrohnsMenManhattan.tsv", row.names = FALSE)
+write.table(WomenSmall, "CrohnsWomenManhattan.tsv", row.names = FALSE)
 
 #---------------------------------------------------------------------
 #this part of the script is used to get the Spearman correlation coefficient (rho)
 #---------------------------------------------------------------------
 
-CrohnsCountMen <- read.table("MenCrohnsCount.tSDS.FDR.tsv", header = TRUE)
-CrohnsCountWomen <- read.table ("WomenCrohnsCount.tSDS.FDR.tsv", header = TRUE)
+CrohnsMen <- read.table("MenCrohns.tSDS.FDR.tsv", header = TRUE)
+CrohnsWomen <- read.table ("WomenCrohns.tSDS.FDR.tsv", header = TRUE)
 
-CrohnsCountMen2 <- CrohnsCountMen %>% select(rsid, CHR, POS, AA, DA, variant, n_complete_samples, beta, se, tstat, pval, tSDS, MEN.pval.FDR)
-CrohnsCountWomen2 <- CrohnsCountWomen %>% select(rsid, CHR, POS, AA, DA, variant, n_complete_samples, beta, se, tstat, pval, tSDS, WOMEN.pval.FDR)
+CrohnsMen2 <- CrohnsMen %>% select(rsid, CHR, POS, AA, DA, variant, n_complete_samples, beta, se, tstat, pval, tSDS, MEN.pval.FDR)
+CrohnsWomen2 <- CrohnsWomen %>% select(rsid, CHR, POS, AA, DA, variant, n_complete_samples, beta, se, tstat, pval, tSDS, WOMEN.pval.FDR)
 
 #changes the name of the column from Beta to differentiate for later
-names(CrohnsCountMen2)[8] <- "BETAM"
-names(CrohnsCountWomen2)[8] <- "BETAW"
+names(CrohnsMen2)[8] <- "BETAM"
+names(CrohnsWomen2)[8] <- "BETAW"
 
 #makes a table with only the marker name and beta values
-BETACrohnsCountMen <- CrohnsCountMen2 %>% select(rsid, BETAM) #need to put in the MarkerName
-BETACrohnsCountWomen <- CrohnsCountWomen2 %>% select(rsid, BETAW) #need to put in the MarkerName
+BETACrohnsMen <- CrohnsMen2 %>% select(rsid, BETAM) #need to put in the MarkerName
+BETACrohnsWomen <- CrohnsWomen2 %>% select(rsid, BETAW) #need to put in the MarkerName
 
 #joins the tables so that there is a column of markernames with the beta values for
 ##men and women right next to each other
-BETACrohnsCount <- merge(BETACrohnsCountMen, BETACrohnsCountWomen, by = "rsid") 
+BETACrohns <- merge(BETACrohnsMen, BETACrohnsWomen, by = "rsid") 
 
 #Spearman rank correlation test
-CrohnsCountCorr1 <- cor.test(~ BETAM + BETAW, data = BETACrohnsCount, method = 'spearman', exact = FALSE)
-CrohnsCountCorr1
+CrohnsCorr1 <- cor.test(~ BETAM + BETAW, data = BETACrohns, method = 'spearman', exact = FALSE)
+CrohnsCorr1
 #grabs the rho value, needed later for the pdiff equation 
-CrohnsCountCorr1$estimate
+CrohnsCorr1$estimate
 
 #adds a column to both the men and women dataframes of the rho value
-CrohnsCountMen2=mutate(CrohnsCountMen2, rho=CrohnsCountCorr1$estimate)
-CrohnsCountWomen2=mutate(CrohnsCountWomen2, rho=CrohnsCountCorr1$estimate)
+CrohnsMen2=mutate(CrohnsMen2, rho=CrohnsCorr1$estimate)
+CrohnsWomen2=mutate(CrohnsWomen2, rho=CrohnsCorr1$estimate)
 
 #makes a table for these that can be uploaded
-write.table(CrohnsCountMen2, "CrohnsCountMenLessCol.tsv", row.names= FALSE, quote = FALSE)
-write.table(CrohnsCountWomen2, "CrohnsCountWomenLessCol.tsv", row.names= FALSE, quote = FALSE)
+write.table(CrohnsMen2, "CrohnsMenLessCol.tsv", row.names= FALSE, quote = FALSE)
+write.table(CrohnsWomen2, "CrohnsWomenLessCol.tsv", row.names= FALSE, quote = FALSE)
 
 #-----------------------------------------
 #this part of the script is used to get the pdiff value
 #-----------------------------------------
 
-CrohnsCountMen2 <- read.table("CrohnsCountMenLessCol.tsv", header = TRUE)
-CrohnsCountWomen2 <- read.table("CrohnsCountWomenLessCol.tsv", header = TRUE)
+CrohnsMen2 <- read.table("CrohnsMenLessCol.tsv", header = TRUE)
+CrohnsWomen2 <- read.table("CrohnsWomenLessCol.tsv", header = TRUE)
 
 tvalueF=function(bmen,bwomen,SEMen,SEWomen,rho){
   return ((bmen - bwomen) / (sqrt((SEMen)^2 + (SEWomen)^2 - (2*rho*SEMen*SEWomen))))
@@ -268,42 +268,42 @@ pvalueF=function(bmen,bwomen,SEMen,SEWomen,rho,DegreesFreedom){
   return(2*pt(-abs(tvalueF(bmen,bwomen,SEMen,SEWomen,rho)), (DegreesFreedom-1)))
 }
 
-names(CrohnsCountMen2)[7] <- "MEN.N"
-names(CrohnsCountMen2)[8] <- "MEN.beta"
-names(CrohnsCountMen2)[9] <- "MEN.se"
-names(CrohnsCountMen2)[10] <- "MEN.tstat"
-names(CrohnsCountMen2)[11] <- "MEN.pval"
-names(CrohnsCountMen2)[12] <- "MEN.tSDS"
+names(CrohnsMen2)[7] <- "MEN.N"
+names(CrohnsMen2)[8] <- "MEN.beta"
+names(CrohnsMen2)[9] <- "MEN.se"
+names(CrohnsMen2)[10] <- "MEN.tstat"
+names(CrohnsMen2)[11] <- "MEN.pval"
+names(CrohnsMen2)[12] <- "MEN.tSDS"
 
-names(CrohnsCountWomen2)[7] <- "WOMEN.N"
-names(CrohnsCountWomen2)[8] <- "WOMEN.beta"
-names(CrohnsCountWomen2)[9] <- "WOMEN.se"
-names(CrohnsCountWomen2)[10] <- "WOMEN.tstat"
-names(CrohnsCountWomen2)[11] <- "WOMEN.pval"
-names(CrohnsCountWomen2)[12] <- "WOMEN.tSDS"
+names(CrohnsWomen2)[7] <- "WOMEN.N"
+names(CrohnsWomen2)[8] <- "WOMEN.beta"
+names(CrohnsWomen2)[9] <- "WOMEN.se"
+names(CrohnsWomen2)[10] <- "WOMEN.tstat"
+names(CrohnsWomen2)[11] <- "WOMEN.pval"
+names(CrohnsWomen2)[12] <- "WOMEN.tSDS"
 
 #concatenates the men and women values into the same datatable
-UKBBCrohnsCount <- merge(CrohnsCountMen2, CrohnsCountWomen2)
+UKBBCrohns <- merge(CrohnsMen2, CrohnsWomen2)
 
 #cleaning data
-UKBBCrohnsCount$MEN.beta<-as.numeric(as.character(UKBBCrohnsCount$MEN.beta)) #beta
-UKBBCrohnsCount$WOMEN.beta<-as.numeric(as.character(UKBBCrohnsCount$WOMEN.beta)) #beta
-UKBBCrohnsCount$MEN.se <-as.numeric(as.character(UKBBCrohnsCount$MEN.se)) #standarderror
-UKBBCrohnsCount$WOMEN.se <-as.numeric(as.character(UKBBCrohnsCount$WOMEN.se)) #standarderror
-UKBBCrohnsCount$MEN.N<-as.numeric(as.character(UKBBCrohnsCount$MEN.N)) #number of individuals
-UKBBCrohnsCount$WOMEN.N<-as.numeric(as.character(UKBBCrohnsCount$WOMEN.N)) #number of individuals
-UKBBCrohnsCount$MEN.tSDS<-as.numeric(as.character(UKBBCrohnsCount$MEN.tSDS)) #tSDS value
-UKBBCrohnsCount$WOMEN.tSDS<-as.numeric(as.character(UKBBCrohnsCount$WOMEN.tSDS)) #tSDS value
-UKBBCrohnsCount$rho<-as.numeric(as.character(UKBBCrohnsCount$rho)) #rho value from previous script
+UKBBCrohns$MEN.beta<-as.numeric(as.character(UKBBCrohns$MEN.beta)) #beta
+UKBBCrohns$WOMEN.beta<-as.numeric(as.character(UKBBCrohns$WOMEN.beta)) #beta
+UKBBCrohns$MEN.se <-as.numeric(as.character(UKBBCrohns$MEN.se)) #standarderror
+UKBBCrohns$WOMEN.se <-as.numeric(as.character(UKBBCrohns$WOMEN.se)) #standarderror
+UKBBCrohns$MEN.N<-as.numeric(as.character(UKBBCrohns$MEN.N)) #number of individuals
+UKBBCrohns$WOMEN.N<-as.numeric(as.character(UKBBCrohns$WOMEN.N)) #number of individuals
+UKBBCrohns$MEN.tSDS<-as.numeric(as.character(UKBBCrohns$MEN.tSDS)) #tSDS value
+UKBBCrohns$WOMEN.tSDS<-as.numeric(as.character(UKBBCrohns$WOMEN.tSDS)) #tSDS value
+UKBBCrohns$rho<-as.numeric(as.character(UKBBCrohns$rho)) #rho value from previous script
 
 
 #mutate a new variable "pval" which holds the result of the function pvalueF
 #make sure that the arguments passed into pvalueF are in the right order
 #pvalueF(bmen,bwomen,SEMen,SEWomen,rho,DegreesFreedom) <-- these are the arguments in order
 #the argument for DegreesFreedom is (BMIadjRandallRaw$MEN.N+BMIadjRandallRaw$WOMEN.N)
-UKBBCrohnsCount=mutate(UKBBCrohnsCount,pdiff=pvalueF(UKBBCrohnsCount$MEN.beta,UKBBCrohnsCount$WOMEN.beta,UKBBCrohnsCount$MEN.se,UKBBCrohnsCount$WOMEN.se,UKBBCrohnsCount$rho,(UKBBCrohnsCount$MEN.N+UKBBCrohnsCount$WOMEN.N)))
+UKBBCrohns=mutate(UKBBCrohns,pdiff=pvalueF(UKBBCrohns$MEN.beta,UKBBCrohns$WOMEN.beta,UKBBCrohns$MEN.se,UKBBCrohns$WOMEN.se,UKBBCrohns$rho,(UKBBCrohns$MEN.N+UKBBCrohns$WOMEN.N)))
 
-write.table(UKBBCrohnsCount, "UKBBCrohnsCountwithPDIFF.tsv", row.names = FALSE, quote = FALSE)
+write.table(UKBBCrohns, "UKBBCrohnswithPDIFF.tsv", row.names = FALSE, quote = FALSE)
 
 #------------------------------------------------------
 #this part of the script is used to choose SNPs at various cutoffs
@@ -312,38 +312,38 @@ write.table(UKBBCrohnsCount, "UKBBCrohnsCountwithPDIFF.tsv", row.names = FALSE, 
 library(dplyr) #needed for %>%
 
 #reads in the dataframe
-ConcatenatedSexCrohnsCount <- read.table("UKBBCrohnsCountwithPDIFF.tsv", header = TRUE)
+ConcatenatedSexCrohns <- read.table("UKBBCrohnswithPDIFF.tsv", header = TRUE)
 
 #assigns the genome-wide significance value, P=5x10-8, as our cutoff line
 cutoff <- 5e-8
 
 #applies the cutoff to the women values and makes a new dataframe
-WomenSig<- ConcatenatedSexCrohnsCount %>% filter(WOMEN.pval <= cutoff)
+WomenSig<- ConcatenatedSexCrohns %>% filter(WOMEN.pval <= cutoff)
 
 #applies the cutoff to the men values and makes a new dataframe
-MenSig<- ConcatenatedSexCrohnsCount %>% filter(MEN.pval <= cutoff)
+MenSig<- ConcatenatedSexCrohns %>% filter(MEN.pval <= cutoff)
 
 AllSig <- merge(MenSig, WomenSig, all=TRUE)
 
 #calculates the FDR for the pdiff values
-CrohnsCountPdiffFDR <- unname(unlist(AllSig[,"pdiff"]))
-fdr <- p.adjust(CrohnsCountPdiffFDR, method = "fdr")
+CrohnsPdiffFDR <- unname(unlist(AllSig[,"pdiff"]))
+fdr <- p.adjust(CrohnsPdiffFDR, method = "fdr")
 AllSig$pdiff.FDR <- fdr
 
-write.table(AllSig, "CrohnsCountwithPDIFF.FDR.tsv", row.names = FALSE)
+write.table(AllSig, "CrohnswithPDIFF.FDR.tsv", row.names = FALSE)
 
 #applies different FDR cutoffs for pdiff and writes a table
 Ex1 <- AllSig %>% filter(pdiff.FDR <= .05)
-write.table(Ex1, "CrohnsCountPdiff1.tsv", row.names = FALSE)
+write.table(Ex1, "CrohnsPdiff1.tsv", row.names = FALSE)
 
 Ex2 <- AllSig %>% filter(pdiff.FDR <= .01)
-write.table(Ex2, "CrohnsCountPdiff2.tsv", row.names = FALSE)
+write.table(Ex2, "CrohnsPdiff2.tsv", row.names = FALSE)
 
 Ex3 <- AllSig %>% filter(pdiff.FDR <= .005)
-write.table(Ex3, "CrohnsCountPdiff3.tsv", row.names = FALSE)
+write.table(Ex3, "CrohnsPdiff3.tsv", row.names = FALSE)
 
 Ex4 <- AllSig %>% filter(pdiff.FDR <= .001)
-write.table(Ex4, "CrohnsCountPdiff4.tsv", row.names = FALSE)
+write.table(Ex4, "CrohnsPdiff4.tsv", row.names = FALSE)
 
 
 #------------------------------------------------------
@@ -356,7 +356,7 @@ SNPsTableMen <- rep(NA, 4)
 tSDSTableWomen <- rep(NA, 4)
 SNPsTableWomen <- rep(NA, 4)
 
-FDRtable <- read.table("CrohnsCountPdiff4.tsv", header = TRUE)
+FDRtable <- read.table("CrohnsPdiff4.tsv", header = TRUE)
 
 FDRtableWomen <- FDRtable %>% filter(WOMEN.pval <= MEN.pval)
 
@@ -369,7 +369,7 @@ tSDSTableMen[1] <- mean(FDRtableMen$MEN.tSDS)
 SNPsTableMen[1] <- nrow(FDRtableMen)
 
 ##########################
-FDRtable <- read.table("CrohnsCountPdiff3.tsv", header = TRUE)
+FDRtable <- read.table("CrohnsPdiff3.tsv", header = TRUE)
 
 FDRtableWomen <- FDRtable %>% filter(WOMEN.pval <= MEN.pval)
 
@@ -381,7 +381,7 @@ FDRtableMen <- FDRtable %>% filter(MEN.pval < WOMEN.pval)
 tSDSTableMen[2] <- mean(FDRtableMen$MEN.tSDS)
 SNPsTableMen[2] <- nrow(FDRtableMen)
 ##########################
-FDRtable <- read.table("CrohnsCountPdiff2.tsv", header = TRUE)
+FDRtable <- read.table("CrohnsPdiff2.tsv", header = TRUE)
 
 FDRtableWomen <- FDRtable %>% filter(WOMEN.pval <= MEN.pval)
 
@@ -395,7 +395,7 @@ SNPsTableMen[3] <- nrow(FDRtableMen)
 
 
 ##########################
-FDRtable <- read.table("CrohnsCountPdiff1.tsv", header = TRUE)
+FDRtable <- read.table("CrohnsPdiff1.tsv", header = TRUE)
 
 FDRtableWomen <- FDRtable %>% filter(WOMEN.pval <= MEN.pval)
 
@@ -407,9 +407,9 @@ FDRtableMen <- FDRtable %>% filter(MEN.pval < WOMEN.pval)
 tSDSTableMen[4] <- mean(FDRtableMen$MEN.tSDS)
 SNPsTableMen[4] <- nrow(FDRtableMen)
 
-write.table(tSDSTableMen, "CrohnsCounttSDSTableMen.txt")
-write.table(SNPsTableMen, "CrohnsCountSNPsTableMen.txt")
+write.table(tSDSTableMen, "CrohnstSDSTableMen.txt")
+write.table(SNPsTableMen, "CrohnsSNPsTableMen.txt")
 
-write.table(tSDSTableWomen, "CrohnsCounttSDSTableWomen.txt")
-write.table(SNPsTableWomen, "CrohnsCountSNPsTableWomen.txt")
+write.table(tSDSTableWomen, "CrohnstSDSTableWomen.txt")
+write.table(SNPsTableWomen, "CrohnsSNPsTableWomen.txt")
 

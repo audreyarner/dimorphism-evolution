@@ -10,6 +10,6 @@ cd $PBS_O_WORKDIR
 
 chmod 755 Script2LeftHandtSDStoPdiff.R #PUT FILENAME HERE	
 
-R --file=/storage/home/ama6560/scratch/Phenotypes/LeftHand/Script2LeftHandtSDStoPdiff.R
+R --file=/storage/home/ama6560/work/Phenotypes/LeftHand/Script2LeftHandtSDStoPdiff.R
 
 ./Script2LeftHandtSDStoPdiff.R

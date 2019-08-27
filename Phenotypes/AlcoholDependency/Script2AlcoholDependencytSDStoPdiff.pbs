@@ -9,6 +9,6 @@ cd $PBS_O_WORKDIR
 
 chmod 755 Script2AlcoholDependencytSDStoPdiff.R #PUT FILENAME HERE	
 
-R --file=/storage/home/ama6560/scratch/Phenotypes/AlcoholDependency/Script2AlcoholDependencytSDStoPdiff.R
+R --file=/storage/home/ama6560/work/Phenotypes/AlcoholDependency/Script2AlcoholDependencytSDStoPdiff.R
 
 ./Script2AlcoholDependencytSDStoPdiff.R

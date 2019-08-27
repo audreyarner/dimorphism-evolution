@@ -26,7 +26,7 @@ GiveAllele = function(information){
 #The UK10K data set has all the SDS values as computed in Field et al. from the Pritchard lab
 #this file can be retrieved from https://datadryad.org/resource/doi:10.5061/dryad.kd58f/1
 #tSDS file should have 4451436 rows
-UK10KDataSet <- read.table("/storage/home/ama6560/work/HeightDimorphism/SDS_UK10K_n3195_release_Sep_19_2016.txt", header = TRUE)
+UK10KDataSet <- read.table("/storage/home/ama6560/work/SDS_UK10K_n3195_release_Sep_19_2016.txt", header = TRUE)
 #the phenotype data you are interested in. Should have ~13 million rows
 Phenotype <- read.table("30000_irnt.gwas.FemalewithRSID.tsv", header = TRUE)
 nrow(Phenotype)

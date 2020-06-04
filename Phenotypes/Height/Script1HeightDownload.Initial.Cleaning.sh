@@ -6,7 +6,7 @@
 
 #downloads the GWAS data from the Neale lab
 wget https://www.dropbox.com/s/dc9te8dcw519uwo/50_irnt.gwas.imputed_v3.female.tsv.bgz?=dl=0 -O 50_irnt.gwas.imputed_v3.female.tsv.bgz
-wget wget https://www.dropbox.com/s/k3vdueztjbloek8/50_irnt.gwas.imputed_v3.male.tsv.bgz?dl=0 -O 50_irnt.gwas.imputed_v3.male.tsv.bgz
+wget https://www.dropbox.com/s/k3vdueztjbloek8/50_irnt.gwas.imputed_v3.male.tsv.bgz?dl=0 -O 50_irnt.gwas.imputed_v3.male.tsv.bgz
 #downloads all the variants, which are of the same number and order in all GWAS files downloaded from the Neale lab
 wget https://www.dropbox.com/s/puxks683vb0omeg/variants.tsv.bgz?dl=0 -O variants.tsv.bgz
 

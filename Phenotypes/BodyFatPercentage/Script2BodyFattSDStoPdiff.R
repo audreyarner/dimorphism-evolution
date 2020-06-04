@@ -7,8 +7,6 @@
 
 #required for %>% and the rbind functions
 library(dplyr)
-#required for graphs at the end
-library(ggplot2)
 
 #function to return an SDS value of the opposite sign if the derived allele is not the same as the tested allele in the GWAS
 #it is also used to return an SDS value of the opposite sign if the beta value is negative
@@ -72,7 +70,7 @@ CorrectEffect$tSDS = CorrectEffect$FIRSTtSDS
 Final.Phenotype.tSDS <- rbind(CorrectEffect, IncorrectEffect2)
 
 #a complete table with every SNP and corresponding tSDS score
-write.csv(Final.Phenotype.tSDS, "WomenBodyFatPercentwithtSDS.csv", row.names = FALSE)
+write.csv(Final.Phenotype.tSDS, "FemaleBodyFatPercentwithtSDS.csv", row.names = FALSE)
 
 #====================================================================
 #--The following creates a graph as in Field et al., 2016 Figure 4A
@@ -90,14 +88,7 @@ MeanP <- colMeans(matrix(OrderedbyP$pval, nrow=1000))
 FinalBinSDSWOOD <- cbind(MeantSDS, MeanP)
 
 #writes a .csv file for use in the genome-wide plot
-write.csv(FinalBinSDSWOOD, "WomenBodyFatPercentSDSBins.csv", row.names = FALSE)
-
-ReplicatedFieldGraph <- read.csv("WomenBodyFatPercentSDSBins.csv")
-
-#makes a graph of the genome wide tSDS score of bins of 1000 SNPs, as seen in Field et al Figure 4A
-ReplicatedFieldGraph %>% ggplot(aes(x=MeanP, y=MeantSDS)) + geom_point() + ggtitle("Phenotype tSDS score observed genome-wide")+ labs(x="Phenotype signifcance (rank)", y = "Phenotype-increasing tSDS (bin average)") + scale_x_reverse() + ylim(-.3,.75)
-
-ggsave("WomenBodyFatPercent.tSDSGraph.png")
+write.csv(FinalBinSDSWOOD, "FemaleBodyFatPercentSDSBins.csv", row.names = FALSE)
 
 #====================================================================
 #--The following repeats the process for males
@@ -147,7 +138,7 @@ CorrectEffect$tSDS = CorrectEffect$FIRSTtSDS
 Final.Phenotype.tSDS <- rbind(CorrectEffect, IncorrectEffect2)
 
 #a complete table with every SNP and corresponding tSDS score
-write.csv(Final.Phenotype.tSDS, "MenBodyFatPercentwithtSDS.csv", row.names = FALSE)
+write.csv(Final.Phenotype.tSDS, "MaleBodyFatPercentwithtSDS.csv", row.names = FALSE)
 
 #====================================================================
 #--The following creates a graph as in Field et al., 2016 Figure 4A
@@ -165,77 +156,60 @@ MeanP <- colMeans(matrix(OrderedbyP$pval, nrow=1000))
 FinalBinSDSWOOD <- cbind(MeantSDS, MeanP)
 
 #writes a .csv file for use in the genome-wide plot
-write.csv(FinalBinSDSWOOD, "MenBodyFatPercentSDSBins.csv", row.names = FALSE)
+write.csv(FinalBinSDSWOOD, "MaleBodyFatPercentSDSBins.csv", row.names = FALSE)
 
-ReplicatedFieldGraph <- read.csv("MenBodyFatPercentSDSBins.csv")
-
-#makes a graph of the genome wide tSDS score of bins of 1000 SNPs, as seen in Field et al Figure 4A
-ReplicatedFieldGraph %>% ggplot(aes(x=MeanP, y=MeantSDS)) + geom_point() + ggtitle("Phenotype tSDS score observed genome-wide")+ labs(x="Phenotype signifcance (rank)", y = "Phenotype-increasing tSDS (bin average)") + scale_x_reverse() + ylim(-.3,.75)
-
-ggsave("MenBodyFatPercent.tSDSGraph.png")
-
-WomenPheno <- read.csv("WomenBodyFatPercentwithtSDS.csv", header = TRUE)
-MenPheno <- read.csv("MenBodyFatPercentwithtSDS.csv", header = TRUE)
+FemalePheno <- read.csv("FemaleBodyFatPercentwithtSDS.csv", header = TRUE)
+MalePheno <- read.csv("MaleBodyFatPercentwithtSDS.csv", header = TRUE)
 
 #takes out the remaining SNPs that are low confidence variants or have a minor allele frequency of less than 0.05
-Phenotype1Clean <- MenPheno %>% filter(low_confidence_variant == "false")
+Phenotype1Clean <- MalePheno %>% filter(low_confidence_variant == "false")
 nrow(Phenotype1Clean)
 Phenotype1Clean <- Phenotype1Clean %>% filter(minor_AF >= .05)
 nrow(Phenotype1Clean)
-Phenotype2Clean <- WomenPheno %>% filter(low_confidence_variant == "false")
+Phenotype2Clean <- FemalePheno %>% filter(low_confidence_variant == "false")
 nrow(Phenotype2Clean)
 Phenotype2Clean <- Phenotype2Clean %>% filter(minor_AF >= .05)
 nrow(Phenotype2Clean)
 
-#calculates the FDR for men
-BodyFatPercentPdiffvalues <- unname(unlist(Phenotype1Clean[,"pval"]))
-fdr <- p.adjust(BodyFatPercentPdiffvalues, method = "fdr")
-Phenotype1Clean$MEN.pval.FDR <- fdr
-
-#calculates the FDR for women
-BodyFatPercentPdiffvalues <- unname(unlist(Phenotype2Clean[,"pval"]))
-fdr <- p.adjust(BodyFatPercentPdiffvalues, method = "fdr")
-Phenotype2Clean$WOMEN.pval.FDR <- fdr
-
 #total table with tSDS, FDR, and Bonferroni
-write.table(Phenotype1Clean, "MenBodyFatPercent.tSDS.FDR.tsv", row.names = FALSE)
-write.table(Phenotype2Clean, "WomenBodyFatPercent.tSDS.FDR.tsv", row.names = FALSE)
+write.table(Phenotype1Clean, "MaleBodyFatPercent.tSDS.FDR.tsv", row.names = FALSE)
+write.table(Phenotype2Clean, "FemaleBodyFatPercent.tSDS.FDR.tsv", row.names = FALSE)
 
-MenSmall <- Phenotype1Clean
-WomenSmall <- Phenotype2Clean
+MaleSmall <- Phenotype1Clean
+FemaleSmall <- Phenotype2Clean
 
 #selects only the columns needed to create the Manhattan plot
-MenSmall <- MenSmall %>% select(rsid, CHR, POS, pval, MEN.pval.FDR)
-WomenSmall <- WomenSmall %>% select(rsid, CHR, POS, pval, WOMEN.pval.FDR)
+MaleSmall <- MaleSmall %>% select(rsid, CHR, POS, pval)
+FemaleSmall <- FemaleSmall %>% select(rsid, CHR, POS, pval)
 
 #filters out high pvalues so they 
-MenSmall <- MenSmall %>% filter(-log10(pval) >1 )
-WomenSmall <- WomenSmall %>% filter(-log10(pval) >1 )
+MaleSmall <- MaleSmall %>% filter(-log10(pval) >1 )
+FemaleSmall <- FemaleSmall %>% filter(-log10(pval) >1 )
 
-write.table(MenSmall, "BodyFatPercentMenManhattan.tsv", row.names = FALSE)
-write.table(WomenSmall, "BodyFatPercentWomenManhattan.tsv", row.names = FALSE)
+write.table(MaleSmall, "BodyFatPercentMaleManhattan.tsv", row.names = FALSE)
+write.table(FemaleSmall, "BodyFatPercentFemaleManhattan.tsv", row.names = FALSE)
 
 #---------------------------------------------------------------------
 #this part of the script is used to get the Spearman correlation coefficient (rho)
 #---------------------------------------------------------------------
 
-BodyFatPercentMen2 <- read.table("MenBodyFatPercent.tSDS.FDR.tsv", header = TRUE)
-BodyFatPercentWomen2 <- read.table ("WomenBodyFatPercent.tSDS.FDR.tsv", header = TRUE)
+BodyFatPercentMale2 <- read.table("MaleBodyFatPercent.tSDS.FDR.tsv", header = TRUE)
+BodyFatPercentFemale2 <- read.table ("FemaleBodyFatPercent.tSDS.FDR.tsv", header = TRUE)
 
-BodyFatPercentMen2 <- BodyFatPercentMen2 %>% select(rsid, CHR, POS, AA, DA, variant, n_complete_samples, beta, se, tstat, pval, tSDS, MEN.pval.FDR)
-BodyFatPercentWomen2 <- BodyFatPercentWomen2 %>% select(rsid, CHR, POS, AA, DA, variant, n_complete_samples, beta, se, tstat, pval, tSDS, WOMEN.pval.FDR)
+BodyFatPercentMale2 <- BodyFatPercentMale2 %>% select(rsid, CHR, POS, AA, DA, variant, n_complete_samples, beta, se, tstat, pval, tSDS)
+BodyFatPercentFemale2 <- BodyFatPercentFemale2 %>% select(rsid, CHR, POS, AA, DA, variant, n_complete_samples, beta, se, tstat, pval, tSDS)
 
 #changes the name of the column from Beta to differentiate for later
-names(BodyFatPercentMen2)[8] <- "BETAM"
-names(BodyFatPercentWomen2)[8] <- "BETAW"
+names(BodyFatPercentMale2)[8] <- "BETAM"
+names(BodyFatPercentFemale2)[8] <- "BETAW"
 
 #makes a table with only the marker name and beta values
-BETABodyFatPercentMen <- BodyFatPercentMen2 %>% select(rsid, BETAM) #need to put in the MarkerName
-BETABodyFatPercentWomen <- BodyFatPercentWomen2 %>% select(rsid, BETAW) #need to put in the MarkerName
+BETABodyFatPercentMale <- BodyFatPercentMale2 %>% select(rsid, BETAM) #need to put in the MarkerName
+BETABodyFatPercentFemale <- BodyFatPercentFemale2 %>% select(rsid, BETAW) #need to put in the MarkerName
 
 #joins the tables so that there is a column of markernames with the beta values for
-##men and women right next to each other
-BETABodyFatPercent <- merge(BETABodyFatPercentMen, BETABodyFatPercentWomen, by = "rsid") 
+##Male and Female right next to each other
+BETABodyFatPercent <- merge(BETABodyFatPercentMale, BETABodyFatPercentFemale, by = "rsid") 
 
 #Spearman rank correlation test
 BodyFatPercentCorr1 <- cor.test(~ BETAM + BETAW, data = BETABodyFatPercent, method = 'spearman', exact = FALSE)
@@ -243,65 +217,66 @@ BodyFatPercentCorr1
 #grabs the rho value, needed later for the pdiff equation 
 BodyFatPercentCorr1$estimate
 
-#adds a column to both the men and women dataframes of the rho value
-BodyFatPercentMen2=mutate(BodyFatPercentMen2, rho=BodyFatPercentCorr1$estimate)
-BodyFatPercentWomen2=mutate(BodyFatPercentWomen2, rho=BodyFatPercentCorr1$estimate)
+#adds a column to both the Male and Female dataframes of the rho value
+BodyFatPercentMale2=mutate(BodyFatPercentMale2, rho=BodyFatPercentCorr1$estimate)
+BodyFatPercentFemale2=mutate(BodyFatPercentFemale2, rho=BodyFatPercentCorr1$estimate)
 
 #makes a table for these that can be uploaded
-write.table(BodyFatPercentMen2, "BodyFatPercentMenLessCol.tsv", row.names= FALSE, quote = FALSE)
-write.table(BodyFatPercentWomen2, "BodyFatPercentWomenLessCol.tsv", row.names= FALSE, quote = FALSE)
+write.table(BodyFatPercentMale2, "BodyFatPercentMaleLessCol.tsv", row.names= FALSE, quote = FALSE)
+write.table(BodyFatPercentFemale2, "BodyFatPercentFemaleLessCol.tsv", row.names= FALSE, quote = FALSE)
 
 #-----------------------------------------
 #this part of the script is used to get the pdiff value
 #-----------------------------------------
 
-BodyFatPercentMen2 <- read.table("BodyFatPercentMenLessCol.tsv", header = TRUE)
-BodyFatPercentWomen2 <- read.table("BodyFatPercentWomenLessCol.tsv", header = TRUE)
+BodyFatPercentMale2 <- read.table("BodyFatPercentMaleLessCol.tsv", header = TRUE)
+BodyFatPercentFemale2 <- read.table("BodyFatPercentFemaleLessCol.tsv", header = TRUE)
 
-tvalueF=function(bmen,bwomen,SEMen,SEWomen,rho){
-  return ((bmen - bwomen) / (sqrt((SEMen)^2 + (SEWomen)^2 - (2*rho*SEMen*SEWomen))))
+tvalueF=function(bMale,bFemale,SEMale,SEFemale,rho){
+  return ((bMale - bFemale) / (sqrt((SEMale)^2 + (SEFemale)^2 - (2*rho*SEMale*SEFemale))))
 }
 
 #creates a function to give the pvalue from the tvalue
 #make sure to include not only the values needed to calculate pvalue, but also those for tvalue
-pvalueF=function(bmen,bwomen,SEMen,SEWomen,rho,DegreesFreedom){
-  return(2*pt(-abs(tvalueF(bmen,bwomen,SEMen,SEWomen,rho)), (DegreesFreedom-1)))
+pvalueF=function(bMale,bFemale,SEMale,SEFemale,rho,DegreesFreedom){
+  return(2*pt(-abs(tvalueF(bMale,bFemale,SEMale,SEFemale,rho)), (DegreesFreedom-1)))
 }
 
-names(BodyFatPercentMen2)[7] <- "MEN.N"
-names(BodyFatPercentMen2)[8] <- "MEN.beta"
-names(BodyFatPercentMen2)[9] <- "MEN.se"
-names(BodyFatPercentMen2)[10] <- "MEN.tstat"
-names(BodyFatPercentMen2)[11] <- "MEN.pval"
-names(BodyFatPercentMen2)[12] <- "MEN.tSDS"
+names(BodyFatPercentMale2)[7] <- "Male.N"
+names(BodyFatPercentMale2)[8] <- "Male.beta"
+names(BodyFatPercentMale2)[9] <- "Male.se"
+names(BodyFatPercentMale2)[10] <- "Male.tstat"
+names(BodyFatPercentMale2)[11] <- "Male.pval"
+names(BodyFatPercentMale2)[12] <- "Male.tSDS"
 
-names(BodyFatPercentWomen2)[7] <- "WOMEN.N"
-names(BodyFatPercentWomen2)[8] <- "WOMEN.beta"
-names(BodyFatPercentWomen2)[9] <- "WOMEN.se"
-names(BodyFatPercentWomen2)[10] <- "WOMEN.tstat"
-names(BodyFatPercentWomen2)[11] <- "WOMEN.pval"
-names(BodyFatPercentWomen2)[12] <- "WOMEN.tSDS"
+names(BodyFatPercentFemale2)[7] <- "Female.N"
+names(BodyFatPercentFemale2)[8] <- "Female.beta"
+names(BodyFatPercentFemale2)[9] <- "Female.se"
+names(BodyFatPercentFemale2)[10] <- "Female.tstat"
+names(BodyFatPercentFemale2)[11] <- "Female.pval"
+names(BodyFatPercentFemale2)[12] <- "Female.tSDS"
 
-#concatenates the men and women values into the same datatable
-UKBBBodyFatPercent <- merge(BodyFatPercentMen2, BodyFatPercentWomen2)
+#concatenates the Male and Female values into the same datatable
+UKBBBodyFatPercent <- merge(BodyFatPercentMale2, BodyFatPercentFemale2)
 
 #cleaning data
-UKBBBodyFatPercent$MEN.beta<-as.numeric(as.character(UKBBBodyFatPercent$MEN.beta)) #beta
-UKBBBodyFatPercent$WOMEN.beta<-as.numeric(as.character(UKBBBodyFatPercent$WOMEN.beta)) #beta
-UKBBBodyFatPercent$MEN.se <-as.numeric(as.character(UKBBBodyFatPercent$MEN.se)) #standarderror
-UKBBBodyFatPercent$WOMEN.se <-as.numeric(as.character(UKBBBodyFatPercent$WOMEN.se)) #standarderror
-UKBBBodyFatPercent$MEN.N<-as.numeric(as.character(UKBBBodyFatPercent$MEN.N)) #number of individuals
-UKBBBodyFatPercent$WOMEN.N<-as.numeric(as.character(UKBBBodyFatPercent$WOMEN.N)) #number of individuals
-UKBBBodyFatPercent$MEN.tSDS<-as.numeric(as.character(UKBBBodyFatPercent$MEN.tSDS)) #tSDS value
-UKBBBodyFatPercent$WOMEN.tSDS<-as.numeric(as.character(UKBBBodyFatPercent$WOMEN.tSDS)) #tSDS value
+UKBBBodyFatPercent$Male.beta<-as.numeric(as.character(UKBBBodyFatPercent$Male.beta)) #beta
+UKBBBodyFatPercent$Female.beta<-as.numeric(as.character(UKBBBodyFatPercent$Female.beta)) #beta
+UKBBBodyFatPercent$Male.se <-as.numeric(as.character(UKBBBodyFatPercent$Male.se)) #standarderror
+UKBBBodyFatPercent$Female.se <-as.numeric(as.character(UKBBBodyFatPercent$Female.se)) #standarderror
+UKBBBodyFatPercent$Male.N<-as.numeric(as.character(UKBBBodyFatPercent$Male.N)) #number of individuals
+UKBBBodyFatPercent$Female.N<-as.numeric(as.character(UKBBBodyFatPercent$Female.N)) #number of individuals
+UKBBBodyFatPercent$Male.tSDS<-as.numeric(as.character(UKBBBodyFatPercent$Male.tSDS)) #tSDS value
+UKBBBodyFatPercent$Female.tSDS<-as.numeric(as.character(UKBBBodyFatPercent$Female.tSDS)) #tSDS value
 UKBBBodyFatPercent$rho<-as.numeric(as.character(UKBBBodyFatPercent$rho)) #rho value from previous script
 
 
 #mutate a new variable "pval" which holds the result of the function pvalueF
-#make sure that the arguments passed into pvalueF are in the right order
-#pvalueF(bmen,bwomen,SEMen,SEWomen,rho,DegreesFreedom) <-- these are the arguments in order
-#the argument for DegreesFreedom is (BMIadjRandallRaw$MEN.N+BMIadjRandallRaw$WOMEN.N)
-UKBBBodyFatPercent=mutate(UKBBBodyFatPercent,pdiff=pvalueF(UKBBBodyFatPercent$MEN.beta,UKBBBodyFatPercent$WOMEN.beta,UKBBBodyFatPercent$MEN.se,UKBBBodyFatPercent$WOMEN.se,UKBBBodyFatPercent$rho,(UKBBBodyFatPercent$MEN.N+UKBBBodyFatPercent$WOMEN.N)))
+#make sure that the arguMalets passed into pvalueF are in the right order
+#pvalueF(bMale,bFemale,SEMale,SEFemale,rho,DegreesFreedom) <-- these are the arguMalets in order
+#the arguMalet for DegreesFreedom is (BMIadjRandallRaw$Male.N+BMIadjRandallRaw$Female.N)
+UKBBBodyFatPercent=mutate(UKBBBodyFatPercent,pdiff=pvalueF(UKBBBodyFatPercent$Male.beta,UKBBBodyFatPercent$Female.beta,UKBBBodyFatPercent$Male.se,UKBBBodyFatPercent$Female.se,UKBBBodyFatPercent$rho,(UKBBBodyFatPercent$Male.N+UKBBBodyFatPercent$Female.N)))
+UKBBBodyFatPercent=mutate(UKBBBodyFatPercent,tdiff=tvalueF(UKBBBodyFatPercent$Male.beta,UKBBBodyFatPercent$Female.beta,UKBBBodyFatPercent$Male.se,UKBBBodyFatPercent$Female.se,UKBBBodyFatPercent$rho))
 
 write.table(UKBBBodyFatPercent, "UKBBBodyFatPercentwithPDIFF.tsv", row.names = FALSE, quote = FALSE)
 
@@ -317,13 +292,13 @@ ConcatenatedSexBodyFatPercent <- read.table("UKBBBodyFatPercentwithPDIFF.tsv", h
 #assigns the genome-wide significance value, P=5x10-8, as our cutoff line
 cutoff <- 5e-8
 
-#applies the cutoff to the women values and makes a new dataframe
-WomenSig<- ConcatenatedSexBodyFatPercent %>% filter(WOMEN.pval <= cutoff)
+#applies the cutoff to the Female values and makes a new dataframe
+FemaleSig<- ConcatenatedSexBodyFatPercent %>% filter(Female.pval <= cutoff)
 
-#applies the cutoff to the men values and makes a new dataframe
-MenSig<- ConcatenatedSexBodyFatPercent %>% filter(MEN.pval <= cutoff)
+#applies the cutoff to the Male values and makes a new dataframe
+MaleSig<- ConcatenatedSexBodyFatPercent %>% filter(Male.pval <= cutoff)
 
-AllSig <- merge(MenSig, WomenSig, all=TRUE)
+AllSig <- merge(MaleSig, FemaleSig, all=TRUE)
 
 #calculates the FDR for the pdiff values
 BodyFatPercentPdiffFDR <- unname(unlist(AllSig[,"pdiff"]))
@@ -350,66 +325,66 @@ write.table(Ex4, "BodyFatPercentPdiff4.tsv", row.names = FALSE)
 #this part of the script calculates SDS
 #------------------------------------------------------
 
-tSDSTableMen <- rep(NA, 4)
-SNPsTableMen <- rep(NA, 4)
+tSDSTableMale <- rep(NA, 4)
+SNPsTableMale <- rep(NA, 4)
 
-tSDSTableWomen <- rep(NA, 4)
-SNPsTableWomen <- rep(NA, 4)
+tSDSTableFemale <- rep(NA, 4)
+SNPsTableFemale <- rep(NA, 4)
 
 FDRtable <- read.table("BodyFatPercentPdiff4.tsv", header = TRUE)
 
-FDRtableWomen <- FDRtable %>% filter(WOMEN.pval <= MEN.pval)
+FDRtableFemale <- FDRtable %>% filter(Female.pval <= Male.pval)
 
-tSDSTableWomen[1] <- mean(FDRtableWomen$WOMEN.tSDS)
-SNPsTableWomen[1] <- nrow(FDRtableWomen)
+tSDSTableFemale[1] <- mean(FDRtableFemale$Female.tSDS)
+SNPsTableFemale[1] <- nrow(FDRtableFemale)
 
-FDRtableMen <- FDRtable %>% filter(MEN.pval < WOMEN.pval)
+FDRtableMale <- FDRtable %>% filter(Male.pval < Female.pval)
 
-tSDSTableMen[1] <- mean(FDRtableMen$MEN.tSDS)
-SNPsTableMen[1] <- nrow(FDRtableMen)
+tSDSTableMale[1] <- mean(FDRtableMale$Male.tSDS)
+SNPsTableMale[1] <- nrow(FDRtableMale)
 
 ##########################
 FDRtable <- read.table("BodyFatPercentPdiff3.tsv", header = TRUE)
 
-FDRtableWomen <- FDRtable %>% filter(WOMEN.pval <= MEN.pval)
+FDRtableFemale <- FDRtable %>% filter(Female.pval <= Male.pval)
 
-tSDSTableWomen[2] <- mean(FDRtableWomen$WOMEN.tSDS)
-SNPsTableWomen[2] <- nrow(FDRtableWomen)
+tSDSTableFemale[2] <- mean(FDRtableFemale$Female.tSDS)
+SNPsTableFemale[2] <- nrow(FDRtableFemale)
 
-FDRtableMen <- FDRtable %>% filter(MEN.pval < WOMEN.pval)
+FDRtableMale <- FDRtable %>% filter(Male.pval < Female.pval)
 
-tSDSTableMen[2] <- mean(FDRtableMen$MEN.tSDS)
-SNPsTableMen[2] <- nrow(FDRtableMen)
+tSDSTableMale[2] <- mean(FDRtableMale$Male.tSDS)
+SNPsTableMale[2] <- nrow(FDRtableMale)
 ##########################
 FDRtable <- read.table("BodyFatPercentPdiff2.tsv", header = TRUE)
 
-FDRtableWomen <- FDRtable %>% filter(WOMEN.pval <= MEN.pval)
+FDRtableFemale <- FDRtable %>% filter(Female.pval <= Male.pval)
 
-tSDSTableWomen[3] <- mean(FDRtableWomen$WOMEN.tSDS)
-SNPsTableWomen[3] <- nrow(FDRtableWomen)
+tSDSTableFemale[3] <- mean(FDRtableFemale$Female.tSDS)
+SNPsTableFemale[3] <- nrow(FDRtableFemale)
 
-FDRtableMen <- FDRtable %>% filter(MEN.pval < WOMEN.pval)
+FDRtableMale <- FDRtable %>% filter(Male.pval < Female.pval)
 
-tSDSTableMen[3] <- mean(FDRtableMen$MEN.tSDS)
-SNPsTableMen[3] <- nrow(FDRtableMen)
+tSDSTableMale[3] <- mean(FDRtableMale$Male.tSDS)
+SNPsTableMale[3] <- nrow(FDRtableMale)
 
 
 ##########################
 FDRtable <- read.table("BodyFatPercentPdiff1.tsv", header = TRUE)
 
-FDRtableWomen <- FDRtable %>% filter(WOMEN.pval <= MEN.pval)
+FDRtableFemale <- FDRtable %>% filter(Female.pval <= Male.pval)
 
-tSDSTableWomen[4] <- mean(FDRtableWomen$WOMEN.tSDS)
-SNPsTableWomen[4] <- nrow(FDRtableWomen)
+tSDSTableFemale[4] <- mean(FDRtableFemale$Female.tSDS)
+SNPsTableFemale[4] <- nrow(FDRtableFemale)
 
-FDRtableMen <- FDRtable %>% filter(MEN.pval < WOMEN.pval)
+FDRtableMale <- FDRtable %>% filter(Male.pval < Female.pval)
 
-tSDSTableMen[4] <- mean(FDRtableMen$MEN.tSDS)
-SNPsTableMen[4] <- nrow(FDRtableMen)
+tSDSTableMale[4] <- mean(FDRtableMale$Male.tSDS)
+SNPsTableMale[4] <- nrow(FDRtableMale)
 
-write.table(tSDSTableMen, "BodyFatPercenttSDSTableMen.txt")
-write.table(SNPsTableMen, "BodyFatPercentSNPsTableMen.txt")
+write.table(tSDSTableMale, "BodyFatPercenttSDSTableMale.txt")
+write.table(SNPsTableMale, "BodyFatPercentSNPsTableMale.txt")
 
-write.table(tSDSTableWomen, "BodyFatPercenttSDSTableWomen.txt")
-write.table(SNPsTableWomen, "BodyFatPercentSNPsTableWomen.txt")
+write.table(tSDSTableFemale, "BodyFatPercenttSDSTableFemale.txt")
+write.table(SNPsTableFemale, "BodyFatPercentSNPsTableFemale.txt")
 

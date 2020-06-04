@@ -9,6 +9,6 @@ cd $PBS_O_WORKDIR
 
 chmod 755 Script2HeighttSDStoPdiff.R #PUT FILENAME HERE	
 
-R --file=/storage/home/ama6560/work/Phenotypes/Height/Script2HeighttSDStoPdiff.R
+R --file=/storage/home/ama6560/scratch/Phenotypes/Height/Script2HeighttSDStoPdiff.R
 
 ./Script2HeighttSDStoPdiff.R

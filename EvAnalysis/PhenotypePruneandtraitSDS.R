@@ -9,40 +9,50 @@
 library(dplyr)
 
 #linkage disequilibrium blocks
-LDBlocks <- read.table("NEWall_fourier_ls.bed")
+LDBlocks <- read.table("LDBlocks.txt", header =T)
 
 #function to prune SNPs in the Pdiff4 category for each phenotype
 getPrunedPdiff = function(SNPs){
   Phenotype <- read.table(SNPs, header = T)
   PhenotypeName <- gsub("withPDIFF.FDR.tsv", "", SNPs)
+  
   Phenotype$CHR <- as.numeric(Phenotype$CHR)
-  LDBlocks$V1 <- as.numeric(LDBlocks$V1)
+  LDBlocks$CHR <- as.numeric(LDBlocks$CHR)
   
   Phenotype$POS <- as.numeric(Phenotype$POS)
-  LDBlocks$V2 <- as.numeric(LDBlocks$V2)
-  LDBlocks$V3 <- as.numeric(LDBlocks$V3)
+  LDBlocks$Block_Start <- as.numeric(LDBlocks$Block_Start)
+  LDBlocks$Block_End <- as.numeric(LDBlocks$Block_End)
   
   Phenotype[,"pval"] <- NA
-
-  Phenotype <- Phenotype %>% filter(WOMEN.pval < 5e-8)
   
   for (i in 1:nrow(Phenotype)){
-    if(Phenotype$MEN.pval[i]<Phenotype$WOMEN.pval[i]){
-      Phenotype$pval[i]=.9
-    } else {Phenotype$pval[i]=Phenotype$WOMEN.pval[i]}
+    if(Phenotype$Male.pval[i]<Phenotype$Female.pval[i]){
+      Phenotype$pval[i]=Phenotype$Male.pval[i]
+    } else {Phenotype$pval[i]=Phenotype$Female.pval[i]}
   }
-  
+
   PrunedSNPsOutput <- rep('a', nrow(LDBlocks))
   
   for(i in 1:nrow(LDBlocks)){
-    BlockSNPs <- Phenotype %>% filter((LDBlocks$V1[i] == Phenotype$CHR) & (LDBlocks$V2[i] <= Phenotype$POS) & (LDBlocks$V3[i] >= Phenotype$POS))
+    BlockSNPs <- Phenotype %>% filter((LDBlocks$CHR[i] == Phenotype$CHR) & (LDBlocks$Block_Start[i] <= Phenotype$POS) & (LDBlocks$Block_End[i] >= Phenotype$POS))
     OrderbyP <- BlockSNPs[order(BlockSNPs$pval),]
     OrderbyP$rsid <- as.character(OrderbyP$rsid)
     PrunedSNPsOutput[i] <- OrderbyP$rsid[1]
   }
   
   PrunedSigSNPs <- Phenotype[Phenotype$rsid %in% PrunedSNPsOutput,]
-  write.table(PrunedSigSNPs, file=paste(PhenotypeName, "PrunedSNPs.tsv", sep=""), row.names=F)
+  
+  PrunedSigSNPs[,"Index"] <- NA
+  
+  for (i in 1:nrow(PrunedSigSNPs)){
+    #which() will give the position of the gene that overlaps, which we can then use to find the gene name
+    SNP.Overlap = which((LDBlocks$CHR == PrunedSigSNPs$CHR[i]) & (LDBlocks$Block_Start <= PrunedSigSNPs$POS[i]) &(LDBlocks$Block_End>=PrunedSigSNPs$POS[i]))
+    if(length(SNP.Overlap>=1)){
+      PrunedSigSNPs$Index[i] = LDBlocks$Index[SNP.Overlap]
+    } else {SNPs$GeneOverlap[i] = 0}
+  } 
+  
+  write.table(PrunedSigSNPs, file=paste(PhenotypeName, "PrunedSNPs.txt", sep=""), sep="\t", row.names=F, quote=F)
 }
 
 getPrunedPdiff("HeightwithPDIFF.FDR.tsv")
@@ -53,16 +63,16 @@ getPrunedPdiff("WaistCircwithPDIFF.FDR.tsv")
 
 gentraitSDS = function(PrunedPheno){
   PrunedSNPs <- read.table(PrunedPheno, header = T)
-  PhenotypeName <- gsub("PrunedSNPs.tsv", "", PrunedPheno)
+  PhenotypeName <- gsub("PrunedSNPs.txt", "", PrunedPheno)
 
   #Permutation of Female p-diff t-SDS score to genome-wide tSDS scores
   
   PrunedSNPs[,"tSDS"] <- NA
   
   for (i in 1:nrow(PrunedSNPs)){
-    if(PrunedSNPs$MEN.pval[i]<PrunedSNPs$WOMEN.pval[i]){
-      PrunedSNPs$tSDS[i]=PrunedSNPs$MEN.tSDS[i]
-    } else {PrunedSNPs$tSDS[i]=PrunedSNPs$WOMEN.tSDS[i]}
+    if(PrunedSNPs$Male.pval[i]<PrunedSNPs$Female.pval[i]){
+      PrunedSNPs$tSDS[i]=PrunedSNPs$Male.tSDS[i]
+    } else {PrunedSNPs$tSDS[i]=PrunedSNPs$Female.tSDS[i]}
   }
   
   AveragetSDS <- mean(PrunedSNPs$tSDS)
@@ -70,9 +80,8 @@ gentraitSDS = function(PrunedPheno){
   print(paste(PhenotypeName, "average tSDS is", AveragetSDS))
 }
 
-gentraitSDS("HeightPrunedSNPs.tsv")
-gentraitSDS("BodyMassPrunedSNPs.tsv")
-gentraitSDS("HipCircPrunedSNPs.tsv")
-gentraitSDS("BodyFatPercentPrunedSNPs.tsv")
-gentraitSDS("WaistCircPrunedSNPs.tsv")
-
+gentraitSDS("HeightPrunedSNPs.txt")
+gentraitSDS("BodyMassPrunedSNPs.txt")
+gentraitSDS("HipCircPrunedSNPs.txt")
+gentraitSDS("BodyFatPercentPrunedSNPs.txt")
+gentraitSDS("WaistCircPrunedSNPs.txt")

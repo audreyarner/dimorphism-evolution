@@ -186,14 +186,15 @@ AlltSDS$Pheno <- factor(AlltSDS$Pheno, levels=c("Height", "BodyMass", "HipCirc",
 
 Plot <- ggplot(AlltSDS, aes(x=Pheno,y=tSDS, fill=Group, color = Group)) + 
   geom_hline(yintercept=0, color = "#efefef")+
-  geom_violin(trim =FALSE, lwd=.75, width = .7) +
+  geom_violin(lwd=.75, width = .7) +
   ylim(-4,6) +
+  geom_point(position = position_jitterdodge(seed = 1, dodge.width = 0.7, jitter.width=0.15)) +
   scale_fill_manual(values=c("#e4f1e1", "#f3cbd3", "#f8ea73")) + 
   scale_color_manual(values=c("#0d585f", "#c94f7c", "#DDCC77")) +
   theme_classic() + 
-  stat_summary(fun.y=median, geom="point", size = 3) #, color = c("#0d585f", "#c94f7c", "#DDCC77","#0d585f", "#c94f7c", "#DDCC77","#0d585f", "#c94f7c", "#DDCC77","#0d585f", "#c94f7c", "#DDCC77", "#DDCC77","#0d585f", "#c94f7c"))
+  stat_summary(fun=median, geom="point", size = 3) #, color = c("#0d585f", "#c94f7c", "#DDCC77","#0d585f", "#c94f7c", "#DDCC77","#0d585f", "#c94f7c", "#DDCC77","#0d585f", "#c94f7c", "#DDCC77", "#DDCC77","#0d585f", "#c94f7c"))
 
 Plot
 
-ggsave(Plot, file="ViolinPlot.pdf", height=7, width =12, useDingbats = FALSE)
+ggsave(Plot, file="ViolinPlotSDS8-24.pdf", height=6, width =12, useDingbats = FALSE)
 

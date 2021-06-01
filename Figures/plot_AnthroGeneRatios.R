@@ -7,9 +7,9 @@
 library(ggplot2)
 library(dplyr)
 
-#Ratio table pulling from all anthropometric phenotypes
-#--table consists of Pdiff level and ratio
-Ratios <- read.csv("EnrichmentWindow4-24.csv", header = TRUE)
+#Ratio table pulling from all anthropometric phenotypes (Supplementary Figure 2)
+#--table consists of Pdiff level and ratio 
+Ratios <- read.csv("EnrichmentWindow7-28.csv", header = TRUE)
 
 #red 95th percentile and observed gene point
 Plot <- ggplot(Ratios, aes(x=pdiff, y = ratio, color = Window, group = Window)) +
@@ -25,5 +25,5 @@ Plot <- ggplot(Ratios, aes(x=pdiff, y = ratio, color = Window, group = Window)) 
 
 Plot
 
-ggsave(Plot, file="AnthroRatioEnrichment.pdf", height=7, width =10, useDingbats=FALSE)
+ggsave(Plot, file="AnthroRatioEnrichment7-28.pdf", height=8.5, width =10, useDingbats=FALSE)
 

@@ -2,6 +2,7 @@
 #PBS -l nodes=1:ppn=4
 #PBS -l walltime=2:30:00
 #PBS -l pmem=6gb
+#PBS -l feature=rhel7
 
 module load r/3.4
 
@@ -9,6 +10,4 @@ cd $PBS_O_WORKDIR
 
 chmod 755 Script2BodyFattSDStoPdiff.R #PUT FILENAME HERE	
 
-R --file=/storage/home/ama6560/scratch/Phenotypes/BodyFatPercent/Script2BodyFattSDStoPdiff.R
-
-./Script2BodyFattSDStoPdiff.R
+R --file=/storage/home/ama6560/scratch/SexDiff/Script2BodyFattSDStoPdiff.R
